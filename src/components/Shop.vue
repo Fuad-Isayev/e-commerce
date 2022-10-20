@@ -39,15 +39,15 @@ export default {
         }
     },
     created() {
-        this.getFruits();
+        this.getItems();
     },
     methods: {
         async handleSubmit() {
-            await axios.post('https://e-commerce-b33a7-default-rtdb.firebaseio.com/fruits.json', this.item);
-            this.getFruits();
+            await axios.post('https://e-commerce-b33a7-default-rtdb.firebaseio.com/items.json', this.item);
+            this.getItems();
         },
-        async getFruits() {
-            const response = await axios.get('https://e-commerce-b33a7-default-rtdb.firebaseio.com/fruits.json');
+        async getItems() {
+            const response = await axios.get('https://e-commerce-b33a7-default-rtdb.firebaseio.com/items.json');
             console.log(response);
             if (response.data) {
                 let keys = Object.keys(response.data);
@@ -61,8 +61,8 @@ export default {
 
         },
         async deleteItem(id) {
-            await axios.delete('https://e-commerce-b33a7-default-rtdb.firebaseio.com/fruits/' + id + '.json');
-            this.getFruits();
+            await axios.delete('https://e-commerce-b33a7-default-rtdb.firebaseio.com/items/' + id + '.json');
+            this.getItems();
         }
     },
 }
