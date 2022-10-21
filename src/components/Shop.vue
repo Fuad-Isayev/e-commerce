@@ -5,7 +5,7 @@
             <form @submit.prevent="handleSubmit">
                 <v-text-field v-model="item.name" label="Name">
                 </v-text-field>
-                <v-text-field v-model="item.price" label="Price">
+                <v-text-field type="number" v-model="item.price" label="Price">
                 </v-text-field>
                 <v-btn @click="handleSubmit" class="btn btn-primary">Add item</v-btn>
             </form>
