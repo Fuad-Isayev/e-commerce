@@ -2,7 +2,12 @@
     <div>
         <h1 class="centered">S H O P </h1>
         <div class="centered">
+            <form method="POST" action="https://my-e-service-admin.herokuapp.com/" enctype="multipart/form-data">
+                <input type="file" name="file">
+                <input style="display: block" type="submit" value="Upload">
+            </form>
             <form @submit.prevent="handleSubmit">
+                <!-- <input type="file" @change="selectImage"> -->
                 <v-text-field v-model="item.name" label="Name">
                 </v-text-field>
                 <v-tooltip v-model="error" color="error">
@@ -15,8 +20,26 @@
         </div>
         <v-container>
             <v-row>
-                <v-col cols="6" v-for="item in items" :key="item.id">
-                    <Items @delete-item="deleteItem" :id="item.id" :item="item" />
+                <v-col cols="2">
+                    Categories:
+                    <ul>
+                        <li>
+                            Electronics
+                        </li>
+                        <li>
+                            Sport
+                        </li>
+                        <li>
+                            Kitchen
+                        </li>
+                    </ul>
+                </v-col>
+                <v-col cols="10">
+                    <v-row>
+                        <v-col cols="3" v-for="item in items" :key="item.id">
+                            <Items @delete-item="deleteItem" :id="item.id" :item="item" />
+                        </v-col>
+                    </v-row>
                 </v-col>
             </v-row>
         </v-container>
@@ -25,7 +48,7 @@
 
 <script>
 import Items from './Items';
-import axios from 'axios';
+import axios from '../../axios';
 
 export default {
     name: "Shop",
@@ -37,6 +60,7 @@ export default {
             item: {
                 name: '',
                 price: '',
+                img: '',
             },
             items: [],
             error: false,
@@ -46,12 +70,15 @@ export default {
         this.getItems();
     },
     methods: {
+        selectImage(event) {
+            console.log('event', event.target.files);
+        },
         async handleSubmit() {
-            await axios.post('https://e-commerce-b33a7-default-rtdb.firebaseio.com/items.json', this.item);
+            await axios.post('/items.json', this.item);
             this.getItems();
         },
         async getItems() {
-            const response = await axios.get('https://e-commerce-b33a7-default-rtdb.firebaseio.com/items.json');
+            const response = await axios.get('/items.json');
             console.log(response);
             if (response.data) {
                 let keys = Object.keys(response.data);
@@ -65,7 +92,7 @@ export default {
 
         },
         async deleteItem(id) {
-            await axios.delete('https://e-commerce-b33a7-default-rtdb.firebaseio.com/items/' + id + '.json');
+            await axios.delete('/items/' + id + '.json');
             this.getItems();
         }
     },
