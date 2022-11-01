@@ -2,12 +2,10 @@
     <div>
         <h1 class="centered">S H O P </h1>
         <div class="centered">
-            <form method="POST" action="https://my-e-service-admin.herokuapp.com/" enctype="multipart/form-data">
-                <input type="file" name="file">
-                <input style="display: block" type="submit" value="Upload">
-            </form>
             <form @submit.prevent="handleSubmit">
-                <!-- <input type="file" @change="selectImage"> -->
+                <input type="file" @change="selectImage">
+                <v-btn class="btn btn-primary" @click="setImage">Set Image</v-btn>
+                <h6> {{ msg }}</h6>
                 <v-text-field v-model="item.name" label="Name">
                 </v-text-field>
                 <v-tooltip v-model="error" color="error">
@@ -15,7 +13,7 @@
                 </v-tooltip>
                 <v-text-field type="number" v-model="item.price" label="Price">
                 </v-text-field>
-                <v-btn @click="handleSubmit" class="btn btn-primary">Add item</v-btn>
+                <v-btn class="btn btn-primary" @click="handleSubmit">Add item</v-btn>
             </form>
         </div>
         <v-container>
@@ -37,7 +35,7 @@
                 <v-col cols="10">
                     <v-row>
                         <v-col cols="3" v-for="item in items" :key="item.id">
-                            <Items @delete-item="deleteItem" :id="item.id" :item="item" />
+                            <Items @delete-item="deleteItem" :item="item" />
                         </v-col>
                     </v-row>
                 </v-col>
@@ -48,7 +46,9 @@
 
 <script>
 import Items from './Items';
-import axios from '../../axios';
+import firebase from '../../firebase';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default {
     name: "Shop",
@@ -60,10 +60,13 @@ export default {
             item: {
                 name: '',
                 price: '',
-                img: '',
+                imgURL: '',
             },
             items: [],
             error: false,
+            image: '',
+            imageSelected: false,
+            msg: '',
         }
     },
     created() {
@@ -72,13 +75,29 @@ export default {
     methods: {
         selectImage(event) {
             console.log('event', event.target.files);
+            this.image = event.target.files[0];
+            this.imageSelected = true;
+        },
+        async setImage() {
+            let formData = new FormData();
+            formData.append("image", this.image);
+            this.msg = 'Loading, please wait...'
+            try {
+                let res = await axios.post('http://localhost:3000/', formData);
+                this.item.imgURL = res.data;
+                this.msg = "File successfully uploaded"
+            } catch (err) {
+                console.log(err);
+            }
         },
         async handleSubmit() {
-            await axios.post('/items.json', this.item);
+            await firebase.post('/items.json', this.item);
             this.getItems();
+            this.msg = '';
+            Swal.fire("Item added!", '', 'success')
         },
         async getItems() {
-            const response = await axios.get('/items.json');
+            const response = await firebase.get('/items.json');
             console.log(response);
             if (response.data) {
                 let keys = Object.keys(response.data);
@@ -87,13 +106,33 @@ export default {
                 })
                 this.items = items;
             } else {
-                this.items = []
+                this.items = [];
             }
 
         },
-        async deleteItem(id) {
-            await axios.delete('/items/' + id + '.json');
-            this.getItems();
+        async deleteItem(id, imgURL) {
+            Swal.fire({
+                title: 'Are you sure you want to delete this item?',
+                showDenyButton: true,
+                showCancelButton: true,
+                showConfirmButton: false,
+                denyButtonText: `Yes`,
+            }).then(async (result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isDenied) {
+                    await firebase.delete('/items/' + id + '.json');
+                    this.getItems();
+                    await this.deleteImage(imgURL);
+                    Swal.fire('File deleted!', '', 'success')
+                }
+            })
+        },
+        async deleteImage(imgURL) {
+            if (imgURL) {
+                let urlParts = imgURL.split('/')
+                let imgName = urlParts[urlParts.length - 1]
+                await axios.post('http://localhost:3000/delete', { imgName: imgName })
+            }
         }
     },
 }
