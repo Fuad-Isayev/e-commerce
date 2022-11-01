@@ -88,6 +88,7 @@ export default {
                 this.msg = "File successfully uploaded"
             } catch (err) {
                 console.log(err);
+                this.msg = err.response.data.error;
             }
         },
         async handleSubmit() {
