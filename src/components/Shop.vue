@@ -83,7 +83,7 @@ export default {
             formData.append("image", this.image);
             this.msg = 'Loading, please wait...'
             try {
-                let res = await axios.post('http://localhost:3000/', formData);
+                let res = await axios.post('https://my-e-service-admin.herokuapp.com/', formData);
                 this.item.imgURL = res.data;
                 this.msg = "File successfully uploaded"
             } catch (err) {
@@ -131,7 +131,7 @@ export default {
             if (imgURL) {
                 let urlParts = imgURL.split('/')
                 let imgName = urlParts[urlParts.length - 1]
-                await axios.post('http://localhost:3000/delete', { imgName: imgName })
+                await axios.post('https://my-e-service-admin.herokuapp.com/delete', { imgName: imgName })
             }
         }
     },
