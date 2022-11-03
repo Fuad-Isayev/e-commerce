@@ -2,19 +2,15 @@
     <div>
         <h1 class="centered">S H O P </h1>
         <div class="centered">
-            <form @submit.prevent="handleSubmit">
+            <v-form @submit.prevent="handleSubmit" ref="form">
                 <input type="file" @change="selectImage">
-                <v-btn class="btn btn-primary" @click="setImage">Set Image</v-btn>
-                <h6> {{ msg }}</h6>
-                <v-text-field v-model="item.name" label="Name">
+                <h6 style="color: red"> {{ msg }}</h6>
+                <v-text-field :rules="[rules.required]" v-model="itemName" label="Name">
                 </v-text-field>
-                <v-tooltip v-model="error" color="error">
-                    Error
-                </v-tooltip>
-                <v-text-field type="number" v-model="item.price" label="Price">
+                <v-text-field :rules="[rules.required]" v-model="itemPrice" label="Price">
                 </v-text-field>
                 <v-btn class="btn btn-primary" @click="handleSubmit">Add item</v-btn>
-            </form>
+            </v-form>
         </div>
         <v-container>
             <v-row>
@@ -57,45 +53,54 @@ export default {
     },
     data() {
         return {
-            item: {
-                name: '',
-                price: '',
-                imgURL: '',
-            },
+            itemName: '',
+            itemPrice: '',
+            imgURl: '',
             items: [],
-            error: false,
             image: '',
             imageSelected: false,
             msg: '',
+            rules: {
+                required: v => v !== '' || 'This field is required'
+            }
         }
     },
     created() {
         this.getItems();
+    },
+    watch: {
+        itemPrice(val) {
+            this.$nextTick(() => {
+                this.itemPrice = val.replace(/\D/g, '')
+            })
+        }
     },
     methods: {
         selectImage(event) {
             console.log('event', event.target.files);
             this.image = event.target.files[0];
             this.imageSelected = true;
-        },
-        async setImage() {
             let formData = new FormData();
             formData.append("image", this.image);
-            this.msg = 'Loading, please wait...'
-            try {
-                let res = await axios.post('https://my-e-service-admin.herokuapp.com/', formData);
-                this.item.imgURL = res.data;
-                this.msg = "File successfully uploaded"
-            } catch (err) {
-                console.log(err);
-                this.msg = err.response.data.error;
-            }
         },
         async handleSubmit() {
-            await firebase.post('/items.json', this.item);
-            this.getItems();
-            this.msg = '';
-            Swal.fire("Item added!", '', 'success')
+            if (this.$refs.form.validate()) {
+                let formData = new FormData();
+                formData.append("image", this.image);
+                formData.append("name", this.itemName);
+                formData.append("price", this.itemPrice);
+                try {
+                    let res = await axios.post('http://localhost:3000/uploads', formData);
+                    console.log(res);
+                    Swal.fire("Item added!", '', 'success')
+                    this.getItems();
+                    this.msg = '';
+                } catch (err) {
+                    console.log(err);
+                    this.msg = err.response.data.error;
+                    Swal.fire(this.msg, '', 'error')
+                }
+            }
         },
         async getItems() {
             const response = await firebase.get('/items.json');
@@ -132,7 +137,7 @@ export default {
             if (imgURL) {
                 let urlParts = imgURL.split('/')
                 let imgName = urlParts[urlParts.length - 1]
-                await axios.post('https://my-e-service-admin.herokuapp.com/delete', { imgName: imgName })
+                await axios.post('http://localhost:3000/delete', { imgName: imgName })
             }
         }
     },
