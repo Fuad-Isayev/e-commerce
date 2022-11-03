@@ -90,7 +90,7 @@ export default {
                 formData.append("name", this.itemName);
                 formData.append("price", this.itemPrice);
                 try {
-                    let res = await axios.post('http://localhost:3000/uploads', formData);
+                    let res = await axios.post('https://my-e-service-admin.herokuapp.com/api/uploads', formData);
                     console.log(res);
                     Swal.fire("Item added!", '', 'success')
                     this.getItems();
@@ -137,7 +137,7 @@ export default {
             if (imgURL) {
                 let urlParts = imgURL.split('/')
                 let imgName = urlParts[urlParts.length - 1]
-                await axios.post('http://localhost:3000/delete', { imgName: imgName })
+                await axios.post('https://my-e-service-admin.herokuapp.com/delete', { imgName: imgName })
             }
         }
     },
