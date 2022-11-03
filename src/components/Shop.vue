@@ -14,7 +14,7 @@
         </div>
         <v-container>
             <v-row>
-                <v-col cols="2">
+                <v-col md="2" sm="12">
                     Categories:
                     <ul>
                         <li>
@@ -28,9 +28,9 @@
                         </li>
                     </ul>
                 </v-col>
-                <v-col cols="10">
+                <v-col md="10" sm="12">
                     <v-row>
-                        <v-col cols="3" v-for="item in items" :key="item.id">
+                        <v-col md="3" sm="10" v-for="item in items" :key="item.id">
                             <Items @delete-item="deleteItem" :item="item" />
                         </v-col>
                     </v-row>
