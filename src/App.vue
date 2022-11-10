@@ -1,21 +1,20 @@
 <template>
   <v-app>
     <v-main>
-      <Shop />
+      <Header />
+      <router-view></router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import Shop from "./components/Shop";
+import Header from './components/Header';
 
 export default {
   name: "App",
-
   components: {
-    Shop,
+    Header,
   },
-
   data: () => ({
     //
   }),

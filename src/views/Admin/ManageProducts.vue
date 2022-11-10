@@ -1,37 +1,27 @@
 <template>
     <div>
-        <h1 class="centered">S H O P </h1>
-        <div class="centered">
-            <v-form @submit.prevent="handleSubmit" ref="form">
-                <input type="file" @change="selectImage">
-                <h6 style="color: red"> {{ msg }}</h6>
-                <v-text-field :rules="[rules.required]" v-model="itemName" label="Name">
-                </v-text-field>
-                <v-text-field :rules="[rules.required]" v-model="itemPrice" label="Price">
-                </v-text-field>
-                <v-btn class="btn btn-primary" @click="handleSubmit">Add item</v-btn>
-            </v-form>
-        </div>
         <v-container>
             <v-row>
-                <v-col md="2" sm="12">
-                    Categories:
-                    <ul>
-                        <li>
-                            Electronics
-                        </li>
-                        <li>
-                            Sport
-                        </li>
-                        <li>
-                            Kitchen
-                        </li>
-                    </ul>
+                <div class="centered">
+                    <v-form @submit.prevent="handleSubmit" ref="form">
+                        <input type="file" @change="selectImage">
+                        <h6 style="color: red"> {{ msg }}</h6>
+                        <v-text-field :rules="[rules.required]" v-model="itemName" label="Name">
+                        </v-text-field>
+                        <v-text-field :rules="[rules.required]" v-model="itemPrice" label="Price">
+                        </v-text-field>
+                        <v-btn class="btn btn-primary" @click="handleSubmit">Add item</v-btn>
+                    </v-form>
+                </div>
+            </v-row>
+            <v-row>
+                <v-col cols="12" sm="2">
+                    <h5>Categories</h5>
                 </v-col>
-                <v-col md="10" sm="12">
+                <v-col cols="12" sm="10">
                     <v-row>
-                        <v-col md="3" sm="10" v-for="item in items" :key="item.id">
-                            <Items @delete-item="deleteItem" :item="item" />
+                        <v-col sm="3" v-for="item in items" :key="item.id">
+                            <Items admin @delete-item="deleteItem" :item="item" />
                         </v-col>
                     </v-row>
                 </v-col>
@@ -41,16 +31,13 @@
 </template>
 
 <script>
-import Items from './Items';
-import firebase from '../../firebase';
+import Items from "../../components/Items.vue";
+import firebase from '../../../firebase';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
 export default {
-    name: "Shop",
-    components: {
-        Items,
-    },
+    name: "ManageProduct",
     data() {
         return {
             itemName: '',
@@ -65,15 +52,11 @@ export default {
             }
         }
     },
+    components: {
+        Items,
+    },
     created() {
         this.getItems();
-    },
-    watch: {
-        itemPrice(val) {
-            this.$nextTick(() => {
-                this.itemPrice = val.replace(/\D/g, '')
-            })
-        }
     },
     methods: {
         selectImage(event) {
@@ -90,7 +73,7 @@ export default {
                 formData.append("name", this.itemName);
                 formData.append("price", this.itemPrice);
                 try {
-                    let res = await axios.post('https://my-e-service-admin.herokuapp.com/api/uploads', formData);
+                    let res = await axios.post('https://my-e-commerce-backend.vercel.app/api/uploads', formData);
                     console.log(res);
                     Swal.fire("Item added!", '', 'success')
                     this.getItems();
@@ -137,18 +120,17 @@ export default {
             if (imgURL) {
                 let urlParts = imgURL.split('/')
                 let imgName = urlParts[urlParts.length - 1]
-                await axios.post('https://my-e-service-admin.herokuapp.com/delete', { imgName: imgName })
+                await axios.post('https://my-e-commerce-backend.vercel.app/delete', { imgName: imgName })
             }
         }
     },
+    watch: {
+        itemPrice(val) {
+            this.$nextTick(() => {
+                this.itemPrice = val.replace(/\D/g, '')
+            })
+        }
+    },
 }
-</script>
 
-<style>
-.centered {
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-</style>
+</script>

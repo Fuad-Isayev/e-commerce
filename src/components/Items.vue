@@ -1,22 +1,30 @@
 <template>
     <div>
-        <v-hover>
-            <v-card class="mx-auto my-5 hover py-5" max-width="500">
-                <v-img heigh="230" :src=item.imgURL>
-                </v-img>
-                <v-card-title class="font-weight-bold text-h6">
-                    ${{ item.price }}
-                </v-card-title>
-                <v-card-title class="font-weight-bold text-h6 justify-space-between">
-                    {{ item.name }}
-                    <v-btn @click="$emit('delete-item', item.id, item.imgURL)" icon>
-                        <v-icon color="red">
-                            mdi-delete
-                        </v-icon>
-                    </v-btn>
-                </v-card-title>
-            </v-card>
-        </v-hover>
+        <v-card v-if="shop" class="mx-auto my-5 hover py-5" max-width="500">
+            <v-img heigh="230" :src=item.imgURL>
+            </v-img>
+            <v-card-title class="font-weight-bold text-h6">
+                ${{ item.price }}
+            </v-card-title>
+            <v-card-title class="font-weight-bold text-h6 justify-space-between">
+                {{ item.name }}
+            </v-card-title>
+        </v-card>
+        <v-card v-if="admin" class="mx-auto my-5 hover py-5" max-width="500">
+            <v-img heigh="230" :src=item.imgURL>
+            </v-img>
+            <v-card-title class="font-weight-bold text-h6">
+                ${{ item.price }}
+            </v-card-title>
+            <v-card-title class="font-weight-bold text-h6 justify-space-between">
+                {{ item.name }}
+                <v-btn @click="$emit('delete-item', item.id, item.imgURL)" icon>
+                    <v-icon color="red">
+                        mdi-delete
+                    </v-icon>
+                </v-btn>
+            </v-card-title>
+        </v-card>
     </div>
 </template>
 
@@ -25,6 +33,8 @@ export default {
     name: 'Items',
     props: {
         item: Object,
+        shop: Boolean,
+        admin: Boolean,
     }
 }
 </script>

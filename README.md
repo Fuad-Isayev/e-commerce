@@ -2,7 +2,7 @@
 
 Demo-App:
 
-https://my-e-service.herokuapp.com/
+https://my-e-commerce.vercel.app/
 
 ## Project setup
 ```
