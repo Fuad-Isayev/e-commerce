@@ -4,7 +4,7 @@
             <v-row>
                 <div class="centered">
                     <v-form @submit.prevent="handleSubmit" ref="form">
-                        <input type="file" @change="selectImage">
+                        <ik-upload :onSuccess="getImageUrl" />
                         <h6 style="color: red"> {{ msg }}</h6>
                         <v-text-field :rules="[rules.required]" v-model="itemName" label="Name">
                         </v-text-field>
@@ -21,7 +21,7 @@
                 <v-col cols="12" sm="10">
                     <v-row>
                         <v-col sm="3" v-for="item in items" :key="item.id">
-                            <Items admin @delete-item="deleteItem" :item="item" />
+                            <Items admin @delete-item="deleteImage" :item="item" />
                         </v-col>
                     </v-row>
                 </v-col>
@@ -43,6 +43,7 @@ export default {
             itemName: '',
             itemPrice: '',
             imgURl: '',
+            imgID: '',
             items: [],
             image: '',
             imageSelected: false,
@@ -59,6 +60,13 @@ export default {
         this.getItems();
     },
     methods: {
+        getImageUrl(res) {
+            let urlParts = res.url.split('/');
+            urlParts[urlParts.length - 1] = "tr:w-300/" + urlParts[urlParts.length - 1];
+            this.imgURl = urlParts.join('/');
+            this.imgID = res.fileId;
+            this.msg = "File uploaded"
+        },
         selectImage(event) {
             console.log('event', event.target.files);
             this.image = event.target.files[0];
@@ -68,13 +76,13 @@ export default {
         },
         async handleSubmit() {
             if (this.$refs.form.validate()) {
-                let formData = new FormData();
-                formData.append("image", this.image);
-                formData.append("name", this.itemName);
-                formData.append("price", this.itemPrice);
                 try {
-                    let res = await axios.post('https://my-e-commerce-backend.vercel.app/api/uploads/', formData);
-                    console.log(res);
+                    await firebase.post("/items.json", {
+                        name: this.itemName,
+                        price: this.itemPrice,
+                        imgURL: this.imgURl,
+                        imgID: this.imgID,
+                    })
                     Swal.fire("Item added!", '', 'success')
                     this.getItems();
                     this.msg = '';
@@ -99,7 +107,7 @@ export default {
             }
 
         },
-        async deleteItem(id, imgURL) {
+        async deleteItem(id, imgID) {
             Swal.fire({
                 title: 'Are you sure you want to delete this item?',
                 showDenyButton: true,
@@ -111,16 +119,14 @@ export default {
                 if (result.isDenied) {
                     await firebase.delete('/items/' + id + '.json');
                     this.getItems();
-                    await this.deleteImage(imgURL);
+                    await this.deleteImage(imgID);
                     Swal.fire('File deleted!', '', 'success')
                 }
             })
         },
-        async deleteImage(imgURL) {
-            if (imgURL) {
-                let urlParts = imgURL.split('/')
-                let imgName = urlParts[urlParts.length - 1]
-                await axios.post('https://my-e-commerce-backend.vercel.app/delete', { imgName: imgName })
+        async deleteImage(id, imgID) {
+            if (imgID) {
+                await axios.get(`https://my-e-commerce-backend.vercel.app/delete/${imgID}`)
             }
         },
     },

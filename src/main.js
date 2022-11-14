@@ -3,8 +3,16 @@ import Vue from "vue";
 import App from "./App.vue";
 import vuetify from "./plugins/vuetify";
 import router from "./router";
+import ImageKit from "imagekitio-vue";
 
 Vue.config.productionTip = false;
+
+Vue.use(ImageKit, {
+  urlEndpoint: "https://ik.imagekit.io/f5u3a9d5/e-commerce", 
+  publicKey: "public_5HH32QFql1p4RXdrfvfsgInUnPE=", 
+  authenticationEndpoint: "https://my-e-commerce-backend.vercel.app/auth" 
+});
+
 
 new Vue({
   vuetify,

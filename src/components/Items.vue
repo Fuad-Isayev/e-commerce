@@ -18,7 +18,7 @@
             </v-card-title>
             <v-card-title class="font-weight-bold text-h6 justify-space-between">
                 {{ item.name }}
-                <v-btn @click="$emit('delete-item', item.id, item.imgURL)" icon>
+                <v-btn @click="$emit('delete-item', item.id, item.imgID)" icon>
                     <v-icon color="red">
                         mdi-delete
                     </v-icon>
