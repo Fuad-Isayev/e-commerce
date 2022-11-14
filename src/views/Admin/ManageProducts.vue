@@ -122,7 +122,7 @@ export default {
                 let imgName = urlParts[urlParts.length - 1]
                 await axios.post('https://my-e-commerce-backend.vercel.app/delete', { imgName: imgName })
             }
-        }
+        },
     },
     watch: {
         itemPrice(val) {
