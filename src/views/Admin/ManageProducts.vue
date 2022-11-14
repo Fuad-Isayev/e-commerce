@@ -8,7 +8,7 @@
                             :rules="[rules.fileIput]" accept="image/png, image/jpeg, image/bmp"
                             placeholder="Choose file" prepend-icon="mdi-image" label="Choose file" ref="imagekit">
                         </v-file-input>
-                        <img :src="loadedImagePath" width="100">
+                        <img v-if="imgID" :src="loadedImagePath" width="100">
                         <v-progress-linear v-if="submit_disabled" v-model="uploadProgress" height="25">
                             <strong>{{ Math.ceil(uploadProgress) }}%</strong>
                         </v-progress-linear>
@@ -131,11 +131,14 @@ export default {
                         imgURL: this.imgURl,
                         imgID: this.imgID,
                     })
+                    this.imgID = '';
                     Swal.fire("Item added!", '', 'success')
                     this.getItems();
-                    this.error_msg = '';
+                    this.success_msg = '';
                     this.submit_loading = false;
                     this.uploadProgress = 0;
+                    this.$refs.imagekit.clear();
+
                 } catch (err) {
                     console.log(err);
                     this.error_msg = err.response.data.error;
