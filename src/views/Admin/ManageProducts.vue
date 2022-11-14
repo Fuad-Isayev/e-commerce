@@ -4,13 +4,24 @@
             <v-row>
                 <div class="centered">
                     <v-form @submit.prevent="handleSubmit" ref="form">
-                        <ik-upload :onSuccess="getImageUrl" />
-                        <h6 style="color: red"> {{ msg }}</h6>
+                        <v-file-input @click:clear="deleteImage(imgID)" @change="getImageUrl" show-size
+                            :rules="[rules.fileIput]" accept="image/png, image/jpeg, image/bmp"
+                            placeholder="Choose file" prepend-icon="mdi-image" label="Choose file" ref="imagekit">
+                        </v-file-input>
+                        <img :src="loadedImagePath" width="100">
+                        <v-progress-linear v-if="submit_disabled" v-model="uploadProgress" height="25">
+                            <strong>{{ Math.ceil(uploadProgress) }}%</strong>
+                        </v-progress-linear>
+                        <!-- <ik-upload :onSuccess="getImageUrl" /> -->
+                        <h6 style="color: red"> {{ error_msg }}</h6>
+                        <h6 style="color: green"> {{ success_msg }}</h6>
                         <v-text-field :rules="[rules.required]" v-model="itemName" label="Name">
                         </v-text-field>
                         <v-text-field :rules="[rules.required]" v-model="itemPrice" label="Price">
                         </v-text-field>
-                        <v-btn class="btn btn-primary" @click="handleSubmit">Add item</v-btn>
+                        <v-btn :disabled="submit_disabled" :loading="submit_loading" class="btn btn-primary"
+                            @click="handleSubmit">Add
+                            item</v-btn>
                     </v-form>
                 </div>
             </v-row>
@@ -21,7 +32,7 @@
                 <v-col cols="12" sm="10">
                     <v-row>
                         <v-col sm="3" v-for="item in items" :key="item.id">
-                            <Items admin @delete-item="deleteImage" :item="item" />
+                            <Items admin @delete-item="deleteItem" :item="item" />
                         </v-col>
                     </v-row>
                 </v-col>
@@ -35,6 +46,7 @@ import Items from "../../components/Items.vue";
 import firebase from '../../../firebase';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import imagekit from "../../../imagekit";
 
 export default {
     name: "ManageProduct",
@@ -46,11 +58,16 @@ export default {
             imgID: '',
             items: [],
             image: '',
-            imageSelected: false,
-            msg: '',
+            error_msg: '',
+            success_msg: '',
+            loadedImagePath: '',
             rules: {
-                required: v => v !== '' || 'This field is required'
-            }
+                required: v => v !== '' || 'This field is required',
+                fileIput: v => !v || v.size < 1000000 || 'Picture size should be less than 1 MB!'
+            },
+            submit_loading: false,
+            submit_disabled: false,
+            uploadProgress: 0,
         }
     },
     components: {
@@ -60,23 +77,54 @@ export default {
         this.getItems();
     },
     methods: {
-        getImageUrl(res) {
-            let urlParts = res.url.split('/');
-            urlParts[urlParts.length - 1] = "tr:w-300/" + urlParts[urlParts.length - 1];
-            this.imgURl = urlParts.join('/');
-            this.imgID = res.fileId;
-            this.msg = "File uploaded"
-        },
-        selectImage(event) {
-            console.log('event', event.target.files);
-            this.image = event.target.files[0];
-            this.imageSelected = true;
-            let formData = new FormData();
-            formData.append("image", this.image);
+        getImageUrl(event) {
+            if (this.$refs.imagekit.validate() && event) {
+                if (this.imgID) {
+                    this.deleteImage(this.imgID)
+                }
+                var fileSize = event.size;
+                var customXHR = new XMLHttpRequest();
+                const _this = this;
+                this.uploadProgress = 0;
+                this.success_msg = '';
+                customXHR.upload.addEventListener('progress', function (e) {
+                    if (e.loaded <= fileSize) {
+                        var percent = Math.round(e.loaded / fileSize * 100);
+                        console.log(`Uploaded ${percent}%`);
+                        _this.uploadProgress = percent;
+                    }
+                    if (e.loaded == e.total) {
+                        _this.uploadProgress = 100;
+                        console.log("Upload done");
+                    }
+                });
+                this.submit_disabled = true;
+
+                imagekit.upload({
+                    xhr: customXHR,
+                    file: event,
+                    fileName: event.name,
+                }).then(res => {
+                    console.log(res);
+                    let urlParts = res.url.split('/');
+                    urlParts[urlParts.length - 1] = "tr:w-300/" + urlParts[urlParts.length - 1];
+                    this.imgURl = urlParts.join('/');
+                    this.imgID = res.fileId;
+                    console.log(urlParts, "asd");
+                    urlParts[urlParts.length - 1] = "tr:w-150,bl-2/" + urlParts[urlParts.length - 1].split('/')[1];
+                    console.log(urlParts, "asd1");
+                    this.loadedImagePath = urlParts.join('/');
+                    this.submit_disabled = false;
+                    this.success_msg = "File uploaded"
+                }).then(error => {
+                    console.log(error);
+                })
+            }
         },
         async handleSubmit() {
             if (this.$refs.form.validate()) {
                 try {
+                    this.submit_loading = true;
                     await firebase.post("/items.json", {
                         name: this.itemName,
                         price: this.itemPrice,
@@ -85,11 +133,13 @@ export default {
                     })
                     Swal.fire("Item added!", '', 'success')
                     this.getItems();
-                    this.msg = '';
+                    this.error_msg = '';
+                    this.submit_loading = false;
+                    this.uploadProgress = 0;
                 } catch (err) {
                     console.log(err);
-                    this.msg = err.response.data.error;
-                    Swal.fire(this.msg, '', 'error')
+                    this.error_msg = err.response.data.error;
+                    Swal.fire(this.error_msg, '', 'error')
                 }
             }
         },
@@ -124,11 +174,18 @@ export default {
                 }
             })
         },
-        async deleteImage(id, imgID) {
+        async deleteImage(imgID) {
             if (imgID) {
+                this.success_msg = '';
+                this.loadedImagePath = '';
                 await axios.get(`https://my-e-commerce-backend.vercel.app/delete/${imgID}`)
             }
         },
+    },
+    computed: {
+        progress() {
+            return this.uploadProgress;
+        }
     },
     watch: {
         itemPrice(val) {
