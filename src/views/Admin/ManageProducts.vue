@@ -73,7 +73,7 @@ export default {
                 formData.append("name", this.itemName);
                 formData.append("price", this.itemPrice);
                 try {
-                    let res = await axios.post('https://my-e-commerce-backend.vercel.app/api/uploads', formData);
+                    let res = await axios.post('https://my-e-commerce-backend.vercel.app/api/uploads/', formData);
                     console.log(res);
                     Swal.fire("Item added!", '', 'success')
                     this.getItems();
