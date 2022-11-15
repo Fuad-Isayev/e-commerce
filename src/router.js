@@ -20,7 +20,7 @@ export default new Router({
             component: Admin,
         },
         {
-            path: "/manage",
+            path: "/admin/manage",
             name: "Manage Products",
             component: ManageProducts,
         }

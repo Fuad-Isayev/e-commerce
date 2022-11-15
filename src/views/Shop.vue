@@ -3,16 +3,22 @@
         <v-container>
             <v-row>
                 <v-col cols="12" sm="3">
-                    Categories:
+                    <h2 class="mb-10"> Categories:</h2>
                     <ul>
-                        <li>
-                            Electronics
+                        <li class="my-2">
+                            <v-btn>
+                                Electronics
+                            </v-btn>
                         </li>
-                        <li>
-                            Sport
+                        <li class="my-2">
+                            <v-btn>
+                                Sport
+                            </v-btn>
                         </li>
-                        <li>
-                            Kitchen
+                        <li class="my-2">
+                            <v-btn>
+                                Kitchen
+                            </v-btn>
                         </li>
                     </ul>
                 </v-col>
