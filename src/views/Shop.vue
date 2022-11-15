@@ -18,7 +18,7 @@
                 </v-col>
                 <v-col cols="12" sm="9">
                     <v-row>
-                        <v-col sm="3" v-for="item in items" :key="item.id">
+                        <v-col cols="12" sm="3" v-for="item in items" :key="item.id">
                             <Items shop :item="item" />
                         </v-col>
                     </v-row>

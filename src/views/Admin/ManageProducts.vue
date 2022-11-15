@@ -15,9 +15,9 @@
                         <!-- <ik-upload :onSuccess="getImageUrl" /> -->
                         <h6 style="color: red"> {{ error_msg }}</h6>
                         <h6 style="color: green"> {{ success_msg }}</h6>
-                        <v-text-field :rules="[rules.required]" v-model="itemName" label="Name">
+                        <v-text-field :rules="[rules.required]" v-model="itemName" label="Name" ref="name">
                         </v-text-field>
-                        <v-text-field :rules="[rules.required]" v-model="itemPrice" label="Price">
+                        <v-text-field :rules="[rules.required]" v-model="itemPrice" label="Price" ref="price">
                         </v-text-field>
                         <v-btn :disabled="submit_disabled" :loading="submit_loading" class="btn btn-primary"
                             @click="handleSubmit">Add
@@ -134,11 +134,7 @@ export default {
                     this.imgID = '';
                     Swal.fire("Item added!", '', 'success')
                     this.getItems();
-                    this.success_msg = '';
-                    this.submit_loading = false;
-                    this.uploadProgress = 0;
-                    this.$refs.imagekit.clear();
-
+                    this.resetForm();
                 } catch (err) {
                     console.log(err);
                     this.error_msg = err.response.data.error;
@@ -184,6 +180,14 @@ export default {
                 await axios.get(`https://my-e-commerce-backend.vercel.app/delete/${imgID}`)
             }
         },
+        resetForm() {
+            this.imgURl = '';
+            this.imgID = '';
+            this.$refs.imagekit.clearableCallback();
+            this.success_msg = '';
+            this.submit_loading = false;
+            this.uploadProgress = 0;
+        }
     },
     computed: {
         progress() {
