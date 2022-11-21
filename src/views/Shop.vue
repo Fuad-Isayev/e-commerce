@@ -39,7 +39,7 @@
                     </v-col>
                 </v-row>
                 <v-row>
-                    <v-col v-if="!isMobile" cols="12" sm="3" class="py-0 pr-0 mt-n3">
+                    <v-col v-if="!isMobile || showFilter" cols="12" sm="3" :class="!isMobile ? 'py-0 pr-0 mt-n3' : ''">
                         <v-card flat outlined tile>
                             <v-toolbar flat>
                                 <v-icon color="black" class="mr-2">mdi-chevron-down</v-icon>
@@ -90,10 +90,24 @@
                                     {{ size }}</v-chip>
                             </v-chip-group>
                         </v-card>
+                        <v-card outlined class="text-center py-3">
+                            <v-btn @click="toggleShowFilter" color=" success" center> Apply (3)</v-btn>
+                        </v-card>
                     </v-col>
-                    <v-col cols="12" sm="9" class="mt-n3">
+                    <v-col v-else class="d-flex align-center justify-space-between">
+                        <v-btn @click="toggleShowFilter">
+                            FILTER
+                        </v-btn>
+                        <v-btn>
+                            SORT BY: <span>
+                                PRICE $-$$
+                            </span>
+                        </v-btn>
+                    </v-col>
+                    <v-col cols="12" sm="9" :class="isMobile ? '' : 'mt-n3'">
                         <v-row>
-                            <v-col cols="12" sm="4" class="py-0" :class="i % 3 ? 'pl-0 pr-1 ml-n1' : 'pl-0 pr-1'"
+                            <v-col cols="12" sm="4" class="py-0"
+                                :class="!isMobile ? i % 3 ? 'pl-0 pr-1 ml-n1' : 'pl-0 pr-1' : ''"
                                 v-for="item, i in items" :key="item.id">
                                 <Items shop :item="item" />
                             </v-col>
@@ -118,13 +132,17 @@ export default {
         return {
             items: [],
             range: [75, 200],
-            sizes: [38, 39, 40, 41, 42, 43]
+            sizes: [38, 39, 40, 41, 42, 43],
+            showFilter: false,
         }
     },
     created() {
         this.getItems();
     },
     methods: {
+        toggleShowFilter() {
+            this.showFilter = !this.showFilter;
+        },
         async getItems() {
             const response = await firebase.get('/items.json');
             if (response.data) {
