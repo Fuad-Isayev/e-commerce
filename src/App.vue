@@ -15,8 +15,13 @@ export default {
   components: {
     Header,
   },
-  data: () => ({
-    //
-  }),
+  mounted() {
+    window.onresize = this.getDimensions;
+  },
+  methods: {
+    getDimensions() {
+      this.$store.state.screenWidth = window.innerWidth;
+    }
+  }
 };
 </script>

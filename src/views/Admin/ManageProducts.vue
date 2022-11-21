@@ -106,14 +106,9 @@ export default {
                     fileName: event.name,
                 }).then(res => {
                     console.log(res);
-                    let urlParts = res.url.split('/');
-                    urlParts[urlParts.length - 1] = "tr:w-300/" + urlParts[urlParts.length - 1];
-                    this.imgURl = urlParts.join('/');
                     this.imgID = res.fileId;
-                    console.log(urlParts, "asd");
-                    urlParts[urlParts.length - 1] = "tr:w-150,bl-2/" + urlParts[urlParts.length - 1].split('/')[1];
-                    console.log(urlParts, "asd1");
-                    this.loadedImagePath = urlParts.join('/');
+                    this.imgURl = res.url + "/tr:w-300"
+                    this.loadedImagePath = res.url + "/tr:w-150,bl-2"
                     this.submit_disabled = false;
                     this.success_msg = "File uploaded"
                 }).then(error => {
@@ -144,7 +139,6 @@ export default {
         },
         async getItems() {
             const response = await firebase.get('/items.json');
-            console.log(response);
             if (response.data) {
                 let keys = Object.keys(response.data);
                 let items = keys.map(key => {

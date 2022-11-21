@@ -1,8 +1,10 @@
 <template>
     <div>
-        <v-card v-if="shop" class="mx-auto my-5 hover py-5" max-width="500">
-            <v-img heigh="230" :src=item.imgURL>
-            </v-img>
+        <v-card flat outlined tile v-if="shop" class="" max-width="500">
+            <div>
+                <v-img :src=item.imgURL max-width="290.25px" max-height="290.25px">
+                </v-img>
+            </div>
             <v-card-title class="font-weight-bold text-h6">
                 ${{ item.price }}
             </v-card-title>
@@ -11,8 +13,10 @@
             </v-card-title>
         </v-card>
         <v-card v-if="admin" class="mx-auto my-5 hover py-5" max-width="500">
-            <v-img heigh="230" :src=item.imgURL>
-            </v-img>
+            <div style="height: 222.8px">
+                <v-img max-width="222.8px" max-height="222.8px" :src=item.imgURL>
+                </v-img>
+            </div>
             <v-card-title class="font-weight-bold text-h6">
                 ${{ item.price }}
             </v-card-title>
