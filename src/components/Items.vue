@@ -2,7 +2,8 @@
     <div>
         <v-card flat outlined tile v-if="shop" class="" max-width="500">
             <div>
-                <v-img :src=item.imgURL max-width="290.25px" max-height="290.25px">
+                <v-img :src=item.imgURL :max-width="isMobile ? '100%' : '290.25px'"
+                    :max-height="isMobile ? '100%' : '290.25px'">
                 </v-img>
             </div>
             <v-card-title class="font-weight-bold text-h6">
@@ -39,6 +40,11 @@ export default {
         item: Object,
         shop: Boolean,
         admin: Boolean,
+    },
+    computed: {
+        isMobile() {
+            return this.$store.getters.isMobile;
+        }
     }
 }
 </script>

@@ -2,7 +2,7 @@
     <div>
         <v-container>
             <v-card>
-                <v-row>
+                <v-row v-if="!isMobile">
                     <v-col cols="12" sm="3" class="mt-n6 pr-0">
                         <v-toolbar flat outlined>
                             <strong>Filter</strong>
@@ -39,7 +39,7 @@
                     </v-col>
                 </v-row>
                 <v-row>
-                    <v-col cols="12" sm="3" class="py-0 pr-0 mt-n3">
+                    <v-col v-if="!isMobile" cols="12" sm="3" class="py-0 pr-0 mt-n3">
                         <v-card flat outlined tile>
                             <v-toolbar flat>
                                 <v-icon color="black" class="mr-2">mdi-chevron-down</v-icon>
@@ -141,10 +141,7 @@ export default {
     },
     computed: {
         isMobile() {
-            switch (this.$vuetify.breakpoint.name) {
-                case "xs": case "sm": case "md": return true;
-                default: return false;
-            }
+            return this.$store.getters.isMobile;
         }
     }
 }
