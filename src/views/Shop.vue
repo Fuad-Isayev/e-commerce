@@ -179,4 +179,8 @@ export default {
     height: 40px !important;
     width: 40px !important;
 }
+
+.v-chip .v-chip__content {
+    justify-content: center;
+}
 </style>

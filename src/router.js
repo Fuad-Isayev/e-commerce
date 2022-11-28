@@ -3,6 +3,7 @@ import Router from "vue-router";
 import Shop from "./views/Shop";
 import Admin from "./views/Admin/Admin";
 import ManageProducts from './views/Admin/ManageProducts';
+import ManageSpecifications from './views/Admin/ManageSpecifications';
 
 Vue.use(Router);
 
@@ -20,9 +21,14 @@ export default new Router({
             component: Admin,
         },
         {
-            path: "/admin/manage",
+            path: "/admin/manage-products",
             name: "Manage Products",
             component: ManageProducts,
+        },
+        {
+            path: "/admin/manage-specs",
+            name: "Manage Specifications",
+            component: ManageSpecifications,
         }
     ]
 })

@@ -40,15 +40,15 @@
                             <v-icon>mdi-heart-outline</v-icon>
                         </v-badge>
                     </v-btn>
-                    <v-btn class="mr-md-2">
+                    <v-btn>
                         <v-badge color="#710219" content="2">
                             <v-icon>mdi-cart-outline</v-icon>
                         </v-badge>
                     </v-btn>
                 </v-col>
             </v-row>
-            <v-divider color="black"></v-divider>
         </v-container>
+        <v-divider></v-divider>
     </div>
 </template>
 

@@ -1,8 +1,20 @@
 <template>
     <div>
         <v-container>
+            <v-row flat>
+                <v-col cols="10"></v-col>
+                <v-col cols="2" class="d-flex justify-end">
+                    <v-btn @click="toggleShowModal" right color="success">ADD ITEM</v-btn>
+                </v-col>
+                <v-dialog v-model="showModal" light width="50%">
+                    <template>
+                        <AddItem @close=toggleShowModal />
+                    </template>
+                </v-dialog>
+
+            </v-row>
             <v-row>
-                <div class="centered">
+                <!-- <div class="centered">
                     <v-form @submit.prevent="handleSubmit" ref="form">
                         <v-file-input @click:clear="deleteImage(imgID)" @change="getImageUrl" show-size
                             :rules="[rules.fileIput]" accept="image/png, image/jpeg, image/bmp"
@@ -12,7 +24,6 @@
                         <v-progress-linear v-if="submit_disabled" v-model="uploadProgress" height="25">
                             <strong>{{ Math.ceil(uploadProgress) }}%</strong>
                         </v-progress-linear>
-                        <!-- <ik-upload :onSuccess="getImageUrl" /> -->
                         <h6 style="color: red"> {{ error_msg }}</h6>
                         <h6 style="color: green"> {{ success_msg }}</h6>
                         <v-text-field :rules="[rules.required]" v-model="itemName" label="Name" ref="name">
@@ -23,7 +34,7 @@
                             @click="handleSubmit">Add
                             item</v-btn>
                     </v-form>
-                </div>
+                </div> -->
             </v-row>
             <v-row>
                 <v-col cols="12" sm="2">
@@ -47,11 +58,13 @@ import firebase from '../../../firebase';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import imagekit from "../../../imagekit";
+import AddItem from "../../components/AddItem.vue";
 
 export default {
     name: "ManageProduct",
     data() {
         return {
+            showModal: false,
             itemName: '',
             itemPrice: '',
             imgURl: '',
@@ -72,11 +85,15 @@ export default {
     },
     components: {
         Items,
+        AddItem,
     },
     created() {
         this.getItems();
     },
     methods: {
+        toggleShowModal() {
+            this.showModal = !this.showModal;
+        },
         getImageUrl(event) {
             if (this.$refs.imagekit.validate() && event) {
                 if (this.imgID) {
@@ -198,3 +215,7 @@ export default {
 }
 
 </script>
+
+<style>
+.toolbar-content-padding-x {}
+</style>
