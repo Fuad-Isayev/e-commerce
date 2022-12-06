@@ -3,34 +3,37 @@
         <v-card flat outlined>
             <div>
                 <h3>{{ title }}</h3>
-                <div>
-                    <v-btn @click="toggleShowEdit" small class="edit-button" :color="showEdit ? null : 'success'">
-                        {{ showEdit ? 'Close' : 'Edit' }}
-                        <v-icon v-if="!showEdit">
-                            mdi-pencil
-                        </v-icon>
-                    </v-btn>
-                </div>
             </div>
             <v-card flat class="mx-auto">
                 <v-list>
                     <v-list-item-group>
                         <v-list-item v-for="(item, i) in items" :key="i">
                             <v-list-item-content>
-                                <v-list-item-title @click="$emit('selectItem', item.id)" class="mx-auto"
-                                    v-text="item.name">
+                                <v-list-item-title @click="selectItem(item.id, i)" class="mx-auto"
+                                    v-text="(item.name || item)">
                                 </v-list-item-title>
                             </v-list-item-content>
-                            <div v-if="showEdit" class="edit-buttons">
-                                <v-btn small class="mr-1">
-                                    <v-icon @click="toggleEditName(item)">
-                                        mdi-pencil</v-icon>
-                                </v-btn>
-                                <v-btn small>
-                                    <v-icon @click="$emit('deleteItem', item.id)" color="red">
-                                        mdi-close</v-icon>
+                            <div v-if="(selectedItem === i)">
+                                <v-btn @click="toggleShowEdit" small class="edit-button"
+                                    :color="showEdit ? null : 'success'">
+                                    {{ showEdit ? 'Cancel' : 'Edit' }}
+                                    <v-icon v-if="!showEdit">
+                                        mdi-pencil
+                                    </v-icon>
                                 </v-btn>
                             </div>
+                            <v-expand-transition>
+                                <div v-if="(showEdit && (selectedItem === i))" class="edit-buttons">
+                                    <v-btn small class=" mb-1 d-block">
+                                        <v-icon @click="toggleEditName(item)">
+                                            mdi-pencil</v-icon>
+                                    </v-btn>
+                                    <v-btn small>
+                                        <v-icon @click="$emit('deleteItem', item.id)" color="red">
+                                            mdi-trash-can-outline</v-icon>
+                                    </v-btn>
+                                </div>
+                            </v-expand-transition>
                         </v-list-item>
                     </v-list-item-group>
                 </v-list>
@@ -73,6 +76,7 @@ export default {
             showAddItems: false,
             showEdit: false,
             editName: false,
+            selectedItem: '',
         }
     },
     methods: {
@@ -86,6 +90,10 @@ export default {
             this.editName = !this.editName;
             this.item = item.name;
             this.itemId = item.id;
+        },
+        selectItem(id, index) {
+            this.selectedItem = index;
+            this.$emit('selectItem', id);
         },
         addItem(item) {
             this.item = "";
@@ -102,16 +110,17 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .edit-button {
     position: absolute;
     right: 10px;
-    top: 5px;
+    top: 10px;
 }
 
 .edit-buttons {
     position: absolute;
+    z-index: 10;
     right: 10px;
-    top: 10px;
+    top: 45px
 }
 </style>

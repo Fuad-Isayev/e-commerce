@@ -128,6 +128,9 @@ export default {
     components: {
         Items,
     },
+    props: {
+        isMobile: Boolean,
+    },
     data() {
         return {
             items: [],
@@ -156,23 +159,11 @@ export default {
             }
 
         },
-    },
-    computed: {
-        isMobile() {
-            return this.$store.getters.isMobile;
-        }
     }
 }
 </script>
 
 <style>
-.centered {
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
 .v-chip.v-size--default {
     border-radius: 50px !important;
     font-size: 14px !important;
@@ -180,7 +171,19 @@ export default {
     width: 40px !important;
 }
 
+.v-chip.v-size--small {
+    border-radius: 50% !important;
+    height: 25px !important;
+    width: 25px !important;
+}
+
 .v-chip .v-chip__content {
     justify-content: center;
+    margin: 0 auto;
+}
+
+.v-icon {
+    margin-left: auto !important;
+    margin-right: auto !important;
 }
 </style>

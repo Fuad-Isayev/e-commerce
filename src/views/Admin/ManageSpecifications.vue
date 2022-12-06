@@ -2,14 +2,85 @@
     <div>
         <v-container>
             <v-row>
-                <v-col cols="12" sm="6" class="text-center">
-                    <List title="Categories" :items="categories" @selectItem="selectCategory" @addItem="addCategory"
-                        @deleteItem="deleteCategory" @editItem="editCategory" />
+                <v-col cols="12" class="d-flex justify-space-between">
+                    <strong>CATEGORY: </strong>
+                    <v-menu bottom offset-y>
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn :small="isMobile" color="primary" dark v-bind="attrs" v-on="on">
+                                {{ subcategory ? subcategory.name : "Choose Category" }}
+                            </v-btn>
+                        </template>
+                        <v-list height="300" class="overflow-auto">
+                            <div v-for="(cat, index) in categories" :key="index">
+                                <strong>{{ cat.name }}</strong>
+                                <v-list-item-group>
+                                    <v-list-item v-for="(subcategory, index) in cat.subcategories" :key="index"
+                                        @click="chooseCategory(cat, subcategory)">
+                                        <v-list-item-title>{{ subcategory.name }}</v-list-item-title>
+                                    </v-list-item>
+                                </v-list-item-group>
+                            </div>
+                        </v-list>
+                    </v-menu>
                 </v-col>
-                <v-col cols="12" sm="6" class="text-center">
-                    <List :title="selectedCategory ? selectedCategory.name : 'Choose a Category'" :items="subcategories"
-                        @addItem="addSubcategory(selectedCategory, $event)"
-                        @editItem="editSubcategory(selectedCategory, $event)" />
+            </v-row>
+            <v-row class="mt-10">
+                <h4 class="text-center">Specifications :</h4>
+                <v-col cols="1">#</v-col>
+                <v-col>Type</v-col>
+                <v-col cols="12" sm="3">Name</v-col>
+                <v-col cols="12" sm="3">Values</v-col>
+                <v-col cols="2">Multiple</v-col>
+            </v-row>
+            <v-row class="mt-10 " v-for="(spec, i) in specifications" :key="i">
+                <v-col cols="1">{{ i }}</v-col>
+                <v-col cols="12" sm="3">
+                    <v-menu offset-y>
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn color="primary" v-bind="attrs" v-on="on" :small="isMobile">
+                                {{ spec.type || "Choose Type" }}
+                            </v-btn>
+                        </template>
+                        <v-list>
+                            <v-list-item v-for="type, i in types" :key="i" @click="chooseType(spec, type)">
+                                <v-list-item-title>
+                                    {{ type }}
+                                </v-list-item-title>
+                            </v-list-item>
+                        </v-list>
+                    </v-menu>
+                </v-col>
+                <v-col cols="12" sm="3">
+                    <h5>
+                        {{ spec.name }}
+                    </h5>
+                </v-col>
+                <v-col cols="12" sm="3" class="overflow-auto py-1" style="max-height: 100px">
+                    <v-chip-group column>
+                        <v-chip v-for="value, i in spec.values" :key="i">
+                            {{ value }}
+                        </v-chip>
+                    </v-chip-group>
+                    <!-- <List :items="spec.values" /> -->
+                </v-col>
+                <v-col cols="2">
+                    <v-checkbox v-model="spec.multiple" :label="spec.multiple.toString()">
+                    </v-checkbox>
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col class="text-center">
+                    <v-btn v-if="!showAddNew" @click="showAddNew = !showAddNew" color="success">
+                        + Add new
+                    </v-btn>
+                    <div v-if="showAddNew">
+                        <v-btn color="primary">
+                            Save
+                        </v-btn>
+                        <v-btn @click="showAddNew = !showAddNew">
+                            Cancel
+                        </v-btn>
+                    </div>
                 </v-col>
             </v-row>
         </v-container>
@@ -17,93 +88,43 @@
 </template>
 
 <script>
-import firebase from '../../../firebase';
-import List from './Components/List';
-import Swal from 'sweetalert2';
-
+// import List from './Components/List'
 
 export default {
     name: "ManageSpecifications",
     components: {
-        List,
+        // List
+    },
+    props: {
+        isMobile: Boolean,
     },
     data() {
         return {
-            categories: [],
-            subcategories: [],
-            selectedCategory: null,
+            items: [{ name: '1' }, { name: '2' }],
+            subcategory: '',
+            specification: {
+                type: '',
+                name: '',
+                values: [],
+                multiple: false,
+            },
+            types: ['color', 'number', "string"],
+            specifications: [{ name: "Color", type: "", values: ["red", "yellow"], multiple: true }, { name: "Sizes", type: "", values: [2, 4, 6, 8, 12], multiple: true }, { name: "Brand", type: "", values: ["red", "yellow"], multiple: false }],
+            showAddNew: false,
+        }
+    },
+    computed: {
+        categories() {
+            return this.$store.state.categories;
         }
     },
     methods: {
-        async addCategory(cat) {
-            await firebase.post(`/categories.json`, {
-                name: cat,
-            });
-            this.getCategories();
+        chooseCategory(cat, subcat) {
+            this.subcategory = { ...subcat, categoryId: cat.id };
         },
-        async deleteCategory(id) {
-            Swal.fire({
-                title: 'Are you sure you want to delete this category?',
-                showDenyButton: true,
-                showCancelButton: true,
-                showConfirmButton: false,
-                denyButtonText: `Yes`,
-            }).then(async (result) => {
-                /* Read more about isConfirmed, isDenied below */
-                if (result.isDenied) {
-                    await firebase.delete('/categories/' + id + '.json');
-                    this.getCategories();
-                }
-            })
+        chooseType(spec, type) {
+            spec.type = type;
         },
-        async editCategory(item) {
-            await firebase.put(`/categories/${item.id}/name.json`, item.name);
-            this.getCategories();
-        },
-        async selectCategory(id) {
-            const response = await firebase.get(`/categories/${id}.json`);
-            try {
-                this.selectedCategory = { ...response.data, id: id };
-                response.data.subcategories ? this.getSubcategories(id) : this.subcategories = []
-            } catch (error) {
-                console.log(error)
-            }
-        },
-        async getCategories() {
-            const response = await firebase.get('/categories.json');
-            if (response.data) {
-                let keys = Object.keys(response.data);
-                let categories = keys.map(key => {
-                    return { ...response.data[key], id: key };
-                })
-                this.categories = categories;
-            } else {
-                this.categories = [];
-            }
-        },
-        async getSubcategories(id) {
-            const res = await firebase.get(`/categories/${id}/subcategories.json`);
-            if (res.data) {
-                let keys = Object.keys(res.data);
-                let subcategories = keys.map(key => {
-                    return { ...res.data[key], id: key };
-                })
-                this.subcategories = subcategories;
-            } else {
-                this.categories = [];
-            }
-        },
-        async addSubcategory(selectedCategory, subcat) {
-            await firebase.post(`/categories/${selectedCategory.id}/subcategories.json`, { name: subcat });
-            this.getSubcategories(selectedCategory.id);
-        },
-        async editSubcategory(category, subcategory) {
-            await firebase.put(`/categories/${category.id}/subcategories/${subcategory.id}/name.json`, subcategory.name);
-            this.getSubcategories(category.id);
-        },
-    },
-    mounted() {
-        this.getCategories();
     }
 }
 </script>

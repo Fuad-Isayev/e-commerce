@@ -2,7 +2,7 @@
   <v-app>
     <v-main>
       <Header />
-      <router-view></router-view>
+      <router-view :isMobile="isMobile"></router-view>
     </v-main>
   </v-app>
 </template>
@@ -17,11 +17,24 @@ export default {
   },
   mounted() {
     window.onresize = this.getDimensions;
+    this.$store.dispatch('getCategories')
   },
   methods: {
     getDimensions() {
       this.$store.state.screenWidth = window.innerWidth;
     }
+  },
+  computed: {
+    isMobile() {
+      return this.$store.getters.isMobile;
+    }
   }
 };
 </script>
+
+<style>
+strong {
+  display: flex;
+  align-items: center;
+}
+</style>

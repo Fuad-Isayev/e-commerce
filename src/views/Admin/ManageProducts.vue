@@ -6,9 +6,9 @@
                 <v-col cols="2" class="d-flex justify-end">
                     <v-btn @click="toggleShowModal" right color="success">ADD ITEM</v-btn>
                 </v-col>
-                <v-dialog v-model="showModal" light width="50%">
+                <v-dialog v-model="showModal" light :width="isMobile ? '100%' : '50%'">
                     <template>
-                        <AddItem @close=toggleShowModal />
+                        <AddItem :isMobile="isMobile" @close=toggleShowModal />
                     </template>
                 </v-dialog>
 
@@ -62,6 +62,9 @@ import AddItem from "../../components/AddItem.vue";
 
 export default {
     name: "ManageProduct",
+    props: {
+        isMobile: Boolean,
+    },
     data() {
         return {
             showModal: false,
@@ -215,7 +218,3 @@ export default {
 }
 
 </script>
-
-<style>
-.toolbar-content-padding-x {}
-</style>
