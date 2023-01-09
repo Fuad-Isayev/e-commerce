@@ -14,6 +14,7 @@ Vue.use(ImageKit, {
   authenticationEndpoint: "https://my-e-commerce-backend.vercel.app/auth" 
 });
 
+require('./prototypeMethods');
 
 new Vue({
   vuetify,

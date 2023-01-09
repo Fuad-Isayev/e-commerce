@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from "vue-router";
 import Shop from "./views/Shop";
 import Admin from "./views/Admin/Admin";
+import Product from "./views/Product";
 import ManageProducts from './views/Admin/ManageProducts';
 import ManageCategories from './views/Admin/ManageCategories';
 import ManageSpecifications from './views/Admin/ManageSpecifications';
@@ -12,9 +13,14 @@ export default new Router({
     mode: 'history',
     routes: [
         {
-            path: "/",
+            path: "/" ,
             name: "Shop",
             component: Shop,
+        },
+        {
+            path: "/products/:id",
+            name: "Product",
+            component: Product,
         },
         {
             path: "/admin",

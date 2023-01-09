@@ -11,11 +11,10 @@
                         <AddItem :isMobile="isMobile" @close=toggleShowModal />
                     </template>
                 </v-dialog>
-
             </v-row>
             <v-row>
-                <!-- <div class="centered">
-                    <v-form @submit.prevent="handleSubmit" ref="form">
+                <div class="centered">
+                    <!-- <v-form @submit.prevent="handleSubmit" ref="form">
                         <v-file-input @click:clear="deleteImage(imgID)" @change="getImageUrl" show-size
                             :rules="[rules.fileIput]" accept="image/png, image/jpeg, image/bmp"
                             placeholder="Choose file" prepend-icon="mdi-image" label="Choose file" ref="imagekit">
@@ -33,8 +32,8 @@
                         <v-btn :disabled="submit_disabled" :loading="submit_loading" class="btn btn-primary"
                             @click="handleSubmit">Add
                             item</v-btn>
-                    </v-form>
-                </div> -->
+                    </v-form> -->
+                </div>
             </v-row>
             <v-row>
                 <v-col cols="12" sm="2">
@@ -58,7 +57,7 @@ import firebase from '../../../firebase';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import imagekit from "../../../imagekit";
-import AddItem from "../../components/AddItem.vue";
+import AddItem from "./Components/AddItem.vue";
 
 export default {
     name: "ManageProduct",
@@ -79,7 +78,7 @@ export default {
             loadedImagePath: '',
             rules: {
                 required: v => v !== '' || 'This field is required',
-                fileIput: v => !v || v.size < 1000000 || 'Picture size should be less than 1 MB!'
+                fileIput: v => v && v.size < 1000000 || 'Picture is required and its size should be less than 1 MB!'
             },
             submit_loading: false,
             submit_disabled: false,
@@ -146,7 +145,6 @@ export default {
                         imgURL: this.imgURl,
                         imgID: this.imgID,
                     })
-                    this.imgID = '';
                     Swal.fire("Item added!", '', 'success')
                     this.getItems();
                     this.resetForm();

@@ -2,7 +2,7 @@
     <div>
         <v-card flat outlined tile v-if="shop" class="" max-width="500">
             <div>
-                <v-img :src=item.imgURL :max-width="isMobile ? '100%' : '290.25px'"
+                <v-img contain :src=item.imgURL :max-width="isMobile ? '100%' : '290.25px'"
                     :max-height="isMobile ? '100%' : '290.25px'">
                 </v-img>
             </div>

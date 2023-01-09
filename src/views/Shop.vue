@@ -159,11 +159,23 @@ export default {
             }
 
         },
+    },
+    computed: {
+        storeItems() {
+            return this.$store.state.items;
+        }
+    },
+    watch: {
+        storeItems(val) {
+            if (val && val.length > 0) {
+                this.items = val;
+            }
+        }
     }
 }
 </script>
 
-<style>
+<style >
 .v-chip.v-size--default {
     border-radius: 50px !important;
     font-size: 14px !important;

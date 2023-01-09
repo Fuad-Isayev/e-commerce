@@ -2,12 +2,12 @@
     <div>
         <v-app-bar-nav-icon @click="drawer = true" large class="ml-md-2">
         </v-app-bar-nav-icon>
-        <v-navigation-drawer width="380px" v-model="drawer" absolute temporary>
+        <v-navigation-drawer width="380px" height="100vh" v-model="drawer" absolute temporary>
             <v-row class="mt-2">
-                <v-col cols="8">
+                <v-col cols="10">
                     <h4 class="ml-6">MENU</h4>
                 </v-col>
-                <v-col class="d-flex justify-end align-items-center pr-5" cols="4">
+                <v-col class="d-flex justify-end align-items-center pr-5" cols="2">
                     <v-icon color="#710219" large @click="drawer = false">mdi-close</v-icon>
                 </v-col>
             </v-row>
@@ -48,7 +48,7 @@
                         </v-list-item-icon>
                     </v-list-item>
                     <transition name="slide-fade">
-                        <Categories v-if="showCategories" />
+                        <Categories @close="drawer = false" v-if="showCategories" />
                     </transition>
                 </v-list-item-group>
             </v-list>

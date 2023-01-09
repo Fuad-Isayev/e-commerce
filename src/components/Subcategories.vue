@@ -7,7 +7,8 @@
                         <v-icon>{{ subcategory.icon }}</v-icon>
                     </v-list-item-icon>
                     <v-list-item-content>
-                        <v-list-item-title v-text="subcategory.name">
+                        <v-list-item-title v-text="subcategory.name"
+                            @click="loadItems(selectedCategory.name, subcategory.name)">
                         </v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
@@ -22,9 +23,11 @@ export default {
     props: {
         selectedCategory: Object,
     },
-    data() {
-        return {
-
+    methods: {
+        loadItems(cat, subcat) {
+            this.$emit('close')
+            console.log(cat, subcat);
+            this.$store.dispatch('loadItems', { cat, subcat })
         }
     }
 }

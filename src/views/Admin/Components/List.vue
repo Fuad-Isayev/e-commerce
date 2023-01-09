@@ -16,7 +16,7 @@
                             <div v-if="(selectedItem === i)">
                                 <v-btn @click="toggleShowEdit" small class="edit-button"
                                     :color="showEdit ? null : 'success'">
-                                    {{ showEdit ? 'Cancel' : 'Edit' }}
+                                    {{ showEdit? 'Cancel': 'Edit' }}
                                     <v-icon v-if="!showEdit">
                                         mdi-pencil
                                     </v-icon>
@@ -25,11 +25,11 @@
                             <v-expand-transition>
                                 <div v-if="(showEdit && (selectedItem === i))" class="edit-buttons">
                                     <v-btn small class=" mb-1 d-block">
-                                        <v-icon @click="toggleEditName(item)">
+                                        <v-icon @click="toggleEditName(item, i)">
                                             mdi-pencil</v-icon>
                                     </v-btn>
                                     <v-btn small>
-                                        <v-icon @click="$emit('deleteItem', item.id)" color="red">
+                                        <v-icon @click="deleteItem(item.id || i)" color="red">
                                             mdi-trash-can-outline</v-icon>
                                     </v-btn>
                                 </div>
@@ -38,12 +38,15 @@
                     </v-list-item-group>
                 </v-list>
             </v-card>
-            <v-btn small color="primary" @click="toggleShowAddItems"> + Add new</v-btn>
+            <v-btn small color="primary" @click="toggleShowAddItems" v-if="!showAddItems"> + Add new</v-btn>
             <v-col class="d-flex justify-center">
-                <v-form @submit.prevent="$emit('addItem', item)" v-if="showAddItems">
+                <v-form @submit.prevent="addItem(item)" v-if="showAddItems">
                     <v-text-field autofocus v-model="item" placeholder="Enter category">
                     </v-text-field>
-                    <v-btn @click="addItem(item)" color="primary"> Submit
+                    <v-btn :x-small="isMobile" @click="addItem(item)" color="primary"> Submit
+                    </v-btn>
+                    <v-btn :x-small="isMobile" v-if="showAddItems" @click="toggleShowAddItems">
+                        Cancel
                     </v-btn>
                 </v-form>
             </v-col>
@@ -79,17 +82,24 @@ export default {
             selectedItem: '',
         }
     },
+    computed: {
+        isMobile() {
+            return this.$store.getters.isMobile;
+        }
+    },
     methods: {
         toggleShowAddItems() {
+            this.item = '';
             this.showAddItems = !this.showAddItems;
         },
         toggleShowEdit() {
             this.showEdit = !this.showEdit
         },
-        toggleEditName(item) {
+        toggleEditName(item, index) {
+            this.showAddItems = false;
             this.editName = !this.editName;
-            this.item = item.name;
-            this.itemId = item.id;
+            this.item = item.name || item;
+            this.itemId = item.id || index;
         },
         selectItem(id, index) {
             this.selectedItem = index;
@@ -99,12 +109,16 @@ export default {
             this.item = "";
             this.$emit('addItem', item);
             this.item = "";
-            this.showAddItems = false;
         },
         editItem() {
             this.$emit('editItem', { id: this.itemId, name: this.item });
             this.itemId = '';
             this.editName = !this.editName;
+            this.toggleShowEdit();
+        },
+        deleteItem(id) {
+            this.$emit('deleteItem', id);
+            this.toggleShowEdit();
         }
     }
 }

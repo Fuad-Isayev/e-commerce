@@ -16,7 +16,8 @@
                     </v-list-item-icon>
                 </v-list-item>
                 <transition name="slide-fade">
-                    <Subcategories :selectedCategory="selectedCategory" v-if="(category === selectedCategory)" />
+                    <Subcategories @close="$emit('close')" :selectedCategory="selectedCategory"
+                        v-if="(category === selectedCategory)" />
                 </transition>
             </v-list-item-group>
         </v-list>
