@@ -45,7 +45,6 @@
                         <h6 class="text-start ">
                             Multiple :
                         </h6>
-                        en
                     </v-col>
                     <v-col>
                         <v-checkbox v-model="specification.multiple">

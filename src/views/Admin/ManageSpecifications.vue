@@ -1,7 +1,6 @@
 <template>
     <div>
         <v-container>
-            <v-btn @click="test()">TEST</v-btn>
             <v-row>
                 <v-col cols="12" class="d-flex justify-space-between">
                     <strong>CATEGORY: </strong>
@@ -44,7 +43,7 @@
                 <v-col v-if="showEdit" cols="1" class="px-0"></v-col>
             </v-row>
             <div ref="container">
-                <v-row ref='draggable' :id="spec.id" draggable
+                <v-row ref='draggable' :id="spec.id" :draggable="showEdit"
                     class="mt-5 text-center text-body-2 text-sm-body-1 justify-center"
                     v-for="(spec, i) in specifications" :key="i">
                     <v-col v-if="showEdit" cols="1" class="px-0">
@@ -152,7 +151,6 @@ export default {
             //     container.insertBefore(draggable, afterElement)
             // }
             this.afterElementId = afterElement?.id || null;
-            // console.log(afterElement?.id)
         })
     },
     computed: {
@@ -223,9 +221,6 @@ export default {
                 }
             }, { offset: Number.NEGATIVE_INFINITY }).element
         },
-        test() {
-            console.log(this.$refs);
-        },
         chooseCategory(subcat) {
             // console.log(subcat)
             this.subcategory = subcat;
@@ -233,9 +228,14 @@ export default {
             this.$nextTick(() => { this.dragListen() });
         },
         getSpecifications(cat) {
-            this.specifications = Object.keys(cat.specifications).map((key) => {
-                return { ...cat.specifications[key], id: key }
-            });
+            if (cat.specifications) {
+                this.specifications = Object.keys(cat.specifications).map((key) => {
+                    return { ...cat.specifications[key], id: key }
+                })
+            } else {
+                this.specifications = [];
+            }
+
             // console.log('specs', this.specifications)
         },
         editSpecification(spec) {
