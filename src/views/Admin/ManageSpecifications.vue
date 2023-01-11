@@ -144,7 +144,6 @@ export default {
             e.preventDefault();
             const afterElement = this.getDragAfterElement(e.clientY);
             // const draggable = document.querySelector('.dragging');
-
             // if (afterElement == null) {
             //     container.appendChild(draggable)
             // } else {
@@ -168,29 +167,56 @@ export default {
         }
     },
     methods: {
+        reorder(draggable) {
+            this.subcategory.specifications = this.$reorderByElement(this.subcategory.specifications, draggable.id, this.afterElementId);
+            this.reorderSpecifications(this.subcategory, draggable.id, this.afterElementId);
+            this.getSpecifications(this.subcategory);
+        },
         dragListen() {
             let draggables = this.$refs.draggable;
+            let clone = null;
 
             draggables.forEach(draggable => {
-                draggable.addEventListener('dragstart', () => {
-                    draggable.classList.add('dragging');
-                    console.log('dragging')
+                let box = null;
+
+                draggable.addEventListener('touchstart', e => {
+                    e.preventDefault();
+                    clone = draggable.cloneNode(true);
+                    this.$refs.container.appendChild(clone);
+                    clone.style.opacity = 0;
+                    box = clone.getBoundingClientRect();
+
                 })
+
+                draggable.addEventListener('touchmove', e => {
+                    e.preventDefault();
+                    draggable.classList.add('dragging');
+
+                    clone.style.opacity = 1;
+                    clone.style.transform = "translate(0, " + (e.targetTouches[0].clientY - box.y - 32) + "px)";
+
+                    this.afterElementId = this.getDragAfterElement(e.targetTouches[0].clientY)?.id || null;
+                    console.log(this.afterElementId);
+                }),
+
+                    draggable.addEventListener('dragstart', () => {
+                        draggable.classList.add('dragging');
+                        console.log('dragging')
+                    })
+
                 draggable.addEventListener('dragend', () => {
                     console.log("IDS FOR FUNCTION: ", draggable.id, ' ', this.afterElementId);
                     if (draggable.id !== this.afterElementId) {
-                        this.subcategory.specifications = this.$reorderByElement(this.subcategory.specifications, draggable.id, this.afterElementId);
-                        this.reorderSpecifications(this.subcategory, draggable.id, this.afterElementId);
-                        this.getSpecifications(this.subcategory);
-
-                        // this.$nextTick(() => {
-                        //     draggables = this.$refs.draggable;
-                        // })
-                        console.log('draggables ', draggables);
+                        this.reorder(draggable);
                     }
-                    draggable.classList.remove('dragging')
+                    draggable.classList.remove('dragging');
                 })
-                // this.$nextTick(() => { this.dragListen() });
+                draggable.addEventListener('touchend', e => {
+                    e.preventDefault();
+                    this.reorder(draggable);
+                    draggable.classList.remove('dragging');
+                    this.$refs.container.removeChild(clone);
+                })
             })
         },
         reorderSpecifications(subcategory, from, to) {
@@ -201,13 +227,12 @@ export default {
                 + "/specifications.json";
             // let url = 'https://e-commerce-b33a7-default-rtdb.firebaseio.com/testing.json';
 
-            console.log("Url: ", url, "\n", "From: ", from, "\n", "To: ", to)
+            // console.log("Url: ", url, "\n", "From: ", from, "\n", "To: ", to);
 
             this.$reorderByUrl(url, from, to)
         },
         getDragAfterElement(y) {
             const draggableElements = this.$refs.draggable;
-            // console.log('start');
 
             return draggableElements.reduce((closest, child) => {
                 // console.log('closest ', closest)
