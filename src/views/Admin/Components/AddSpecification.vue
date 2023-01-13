@@ -104,6 +104,7 @@ export default {
         async addItem(subcat) {
             await firebase.post(`/categories/${subcat.categoryId}/subcategories/${subcat.id}/specifications.json`, this.specification);
             this.$store.dispatch('getCategories');
+            this.resetItem();
             this.$emit('itemAdded')
             this.$emit('close');
         },
@@ -111,6 +112,14 @@ export default {
             await firebase.put(`/categories/${subcat.categoryId}/subcategories/${subcat.id}/specifications/${spec.id}.json`, spec);
             this.$store.dispatch('getCategories');
             this.$emit('close');
+        },
+        resetItem() {
+            this.specification = {
+                type: '',
+                name: '',
+                values: [],
+                multiple: false,
+            }
         },
         addValue(value) {
             if (!this.specification.values) {
@@ -135,27 +144,27 @@ export default {
                     this.specification.values.splice(index, 1)
                 }
             })
-        }
-    },
-    mounted() {
-        if (this.editingItem) {
-            this.specification = this.editingItem;
-            this.title = this.editingItem.name;
-        }
-    },
-    watch: {
-        editingItem(val) {
-            if (val) {
-                this.specification = val;
-                this.title = val.name;
-            } else {
-                this.specification = {
-                    type: '',
-                    name: '',
-                    values: [],
-                    multiple: false,
-                };
-                this.title = "Add Specification"
+        },
+        mounted() {
+            if (this.editingItem) {
+                this.specification = this.editingItem;
+                this.title = this.editingItem.name;
+            }
+        },
+        watch: {
+            editingItem(val) {
+                if (val) {
+                    this.specification = val;
+                    this.title = val.name;
+                } else {
+                    this.specification = {
+                        type: '',
+                        name: '',
+                        values: [],
+                        multiple: false,
+                    };
+                    this.title = "Add Specification"
+                }
             }
         }
     }

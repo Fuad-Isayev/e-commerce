@@ -24,7 +24,7 @@ export default {
 
     script.type = "text/javascript";
 
-    document.head.appendChild(script);
+    // document.head.appendChild(script);
 
   },
   methods: {

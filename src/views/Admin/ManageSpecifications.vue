@@ -181,12 +181,11 @@ export default {
                         clone.style.opacity = 0;
                         box = clone.getBoundingClientRect();
                     }
-
                 })
                 draggable.addEventListener('touchmove', e => {
+                    e.preventDefault();
                     if (this.allowDrag) {
                         draggable.classList.add('dragging');
-
                         clone.style.opacity = 1;
                         clone.style.transform = "translate(0, " + (e.targetTouches[0].clientY - box.y - 32) + "px)";
 
@@ -199,6 +198,7 @@ export default {
                         draggable.classList.remove('dragging');
                         this.$refs.container.removeChild(clone);
                         this.allowDrag = false;
+                        this.afterElementId = null;
                     }
                 })
             })
@@ -219,7 +219,8 @@ export default {
             })
         },
         reorderSpecifications(subcategory, from, to) {
-            if (from != to) {
+            console.log("IDS FOR FUNCTION: ", from, 'and ', to);
+            if (from && to && from != to) {
                 let url = 'https://e-commerce-b33a7-default-rtdb.firebaseio.com/categories/'
                     + subcategory.categoryId
                     + "/subcategories/"
