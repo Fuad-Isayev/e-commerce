@@ -43,11 +43,12 @@
                 <v-col v-if="showEdit" cols="1" class="px-0"></v-col>
             </v-row>
             <div ref="container">
-                <v-row ref='draggable' :id="spec.id" :draggable="showEdit"
+                <v-row ref='draggable' :id="spec.id" :draggable="allowDrag"
                     class="mt-5 text-center text-body-2 text-sm-body-1 justify-center"
                     v-for="(spec, i) in specifications" :key="i">
                     <v-col v-if="showEdit" cols="1" class="px-0">
-                        <v-icon class="reorder-button">
+                        <v-icon @touchstart="allowDrag = true" @mouseover="allowDrag = true"
+                            @mouseleave="allowDrag = false" class="reorder-button">
                             mdi-menu
                         </v-icon>
                     </v-col>
@@ -135,7 +136,8 @@ export default {
             showValues: null,
             showEdit: false,
             editingSpecification: null,
-            afterElementId: ''
+            afterElementId: '',
+            allowDrag: false,
         }
     },
     mounted() {
@@ -161,84 +163,79 @@ export default {
         categories(val) {
             if (this.subcategory) {
                 this.subcategory = val[this.subcategory.categoryId].subcategories[this.subcategory.id];
-                // console.log('subcategory', this.subcategory);
                 this.getSpecifications(this.subcategory);
             }
         }
     },
     methods: {
-        reorder(draggable) {
-            this.subcategory.specifications = this.$reorderByElement(this.subcategory.specifications, draggable.id, this.afterElementId);
-            this.reorderSpecifications(this.subcategory, draggable.id, this.afterElementId);
-            this.getSpecifications(this.subcategory);
-        },
-        dragListen() {
+        touchListen() {
             let draggables = this.$refs.draggable;
             let clone = null;
 
             draggables.forEach(draggable => {
                 let box = null;
-
-                draggable.addEventListener('touchstart', e => {
-                    e.preventDefault();
-                    clone = draggable.cloneNode(true);
-                    this.$refs.container.appendChild(clone);
-                    clone.style.opacity = 0;
-                    box = clone.getBoundingClientRect();
+                draggable.addEventListener('touchstart', () => {
+                    if (this.allowDrag) {
+                        clone = draggable.cloneNode(true);
+                        this.$refs.container.appendChild(clone);
+                        clone.style.opacity = 0;
+                        box = clone.getBoundingClientRect();
+                    }
 
                 })
-
                 draggable.addEventListener('touchmove', e => {
-                    e.preventDefault();
-                    draggable.classList.add('dragging');
-
-                    clone.style.opacity = 1;
-                    clone.style.transform = "translate(0, " + (e.targetTouches[0].clientY - box.y - 32) + "px)";
-
-                    this.afterElementId = this.getDragAfterElement(e.targetTouches[0].clientY)?.id || null;
-                    console.log(this.afterElementId);
-                }),
-
-                    draggable.addEventListener('dragstart', () => {
+                    if (this.allowDrag) {
                         draggable.classList.add('dragging');
-                        console.log('dragging')
-                    })
+
+                        clone.style.opacity = 1;
+                        clone.style.transform = "translate(0, " + (e.targetTouches[0].clientY - box.y - 32) + "px)";
+
+                        this.afterElementId = this.getDragAfterElement(e.targetTouches[0].clientY)?.id || null;
+                    }
+                })
+                draggable.addEventListener('touchend', () => {
+                    if (this.allowDrag) {
+                        this.reorderSpecifications(this.subcategory, draggable.id, this.afterElementId);
+                        draggable.classList.remove('dragging');
+                        this.$refs.container.removeChild(clone);
+                        this.allowDrag = false;
+                    }
+                })
+            })
+        },
+        dragListen() {
+            let draggables = this.$refs.draggable;
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', () => {
+                    draggable.classList.add('dragging');
+                })
 
                 draggable.addEventListener('dragend', () => {
-                    console.log("IDS FOR FUNCTION: ", draggable.id, ' ', this.afterElementId);
-                    if (draggable.id !== this.afterElementId) {
-                        this.reorder(draggable);
-                    }
+                    this.reorderSpecifications(this.subcategory, draggable.id, this.afterElementId);
                     draggable.classList.remove('dragging');
-                })
-                draggable.addEventListener('touchend', e => {
-                    e.preventDefault();
-                    this.reorder(draggable);
-                    draggable.classList.remove('dragging');
-                    this.$refs.container.removeChild(clone);
+                    this.allowDrag = false;
                 })
             })
         },
         reorderSpecifications(subcategory, from, to) {
-            let url = 'https://e-commerce-b33a7-default-rtdb.firebaseio.com/categories/'
-                + subcategory.categoryId
-                + "/subcategories/"
-                + subcategory.id
-                + "/specifications.json";
-            // let url = 'https://e-commerce-b33a7-default-rtdb.firebaseio.com/testing.json';
-
-            // console.log("Url: ", url, "\n", "From: ", from, "\n", "To: ", to);
-
-            this.$reorderByUrl(url, from, to)
+            if (from != to) {
+                let url = 'https://e-commerce-b33a7-default-rtdb.firebaseio.com/categories/'
+                    + subcategory.categoryId
+                    + "/subcategories/"
+                    + subcategory.id
+                    + "/specifications.json";
+                this.subcategory.specifications = this.$reorderByElement(subcategory.specifications, from, to);
+                this.$reorderByUrl(url, from, to);
+                this.getSpecifications(subcategory);
+            }
         },
         getDragAfterElement(y) {
             const draggableElements = this.$refs.draggable;
 
             return draggableElements.reduce((closest, child) => {
-                // console.log('closest ', closest)
                 const box = child.getBoundingClientRect();
                 const offset = y - box.y - box.height / 2;
-                // console.log(offset);
                 if (offset < 0 && offset > closest.offset) {
                     return { offset: offset, element: child }
                 } else {
@@ -247,10 +244,10 @@ export default {
             }, { offset: Number.NEGATIVE_INFINITY }).element
         },
         chooseCategory(subcat) {
-            // console.log(subcat)
             this.subcategory = subcat;
             this.getSpecifications(subcat);
             this.$nextTick(() => { this.dragListen() });
+            this.$nextTick(() => { this.touchListen() });
         },
         getSpecifications(cat) {
             if (cat.specifications) {
@@ -260,8 +257,6 @@ export default {
             } else {
                 this.specifications = [];
             }
-
-            // console.log('specs', this.specifications)
         },
         editSpecification(spec) {
             this.editingSpecification = spec;
