@@ -183,8 +183,8 @@ export default {
                     }
                 })
                 draggable.addEventListener('touchmove', e => {
-                    e.preventDefault();
                     if (this.allowDrag) {
+                        e.preventDefault();
                         draggable.classList.add('dragging');
                         clone.style.opacity = 1;
                         clone.style.transform = "translate(0, " + (e.targetTouches[0].clientY - box.y - 32) + "px)";
