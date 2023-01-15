@@ -179,7 +179,7 @@ export default {
                 let box = null;
                 draggable.addEventListener('touchstart', (e) => {
                     if (this.allowDrag) {
-                        this.touches = e.targetTouches;
+                        this.touches = e.targetTouches.length;
                         clone = draggable.cloneNode(true);
                         this.$refs.main.appendChild(clone);
                         clone.style.opacity = 0;
