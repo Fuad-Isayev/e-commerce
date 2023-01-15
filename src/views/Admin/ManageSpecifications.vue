@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-container>
+        <v-container ref="main">
             <v-row>
                 <v-col cols="12" class="d-flex justify-space-between">
                     <strong>CATEGORY: </strong>
@@ -171,13 +171,14 @@ export default {
         touchListen() {
             let draggables = this.$refs.draggable;
             let clone = null;
+            let offset = 0;
 
             draggables.forEach(draggable => {
                 let box = null;
-                draggable.addEventListener('touchstart', () => {
-                    if (this.allowDrag) {
+                draggable.addEventListener('touchstart', (e) => {
+                    if (this.allowDrag && e.targetTouches.length === 1) {
                         clone = draggable.cloneNode(true);
-                        this.$refs.container.appendChild(clone);
+                        this.$refs.main.appendChild(clone);
                         clone.style.opacity = 0;
                         box = clone.getBoundingClientRect();
                     }
@@ -185,20 +186,29 @@ export default {
                 draggable.addEventListener('touchmove', e => {
                     if (this.allowDrag) {
                         e.preventDefault();
+                        if (e.targetTouches[0].clientY > window.innerHeight) {
+                            window.scrollBy(0, 1);
+                            offset = window.scrollY;
+                            console.log('ofset', offset);
+                        } else {
+                            clone.style.transform = "translate(0, " + (e.targetTouches[0].clientY - box.y - 24 + offset) + "px)";
+                        }
+                        // console.log(e.targetTouches[0].clientY, ' and ', box.y, ' and ', clone.style.transform, ' offset ', window.scrollY);
                         draggable.classList.add('dragging');
                         clone.style.opacity = 1;
-                        clone.style.transform = "translate(0, " + (e.targetTouches[0].clientY - box.y - 32) + "px)";
+
 
                         this.afterElementId = this.getDragAfterElement(e.targetTouches[0].clientY)?.id || null;
                     }
                 })
                 draggable.addEventListener('touchend', () => {
-                    if (this.allowDrag) {
+                    if (this.allowDrag && clone.style.opacity > 0) {
                         this.reorderSpecifications(this.subcategory, draggable.id, this.afterElementId);
                         draggable.classList.remove('dragging');
-                        this.$refs.container.removeChild(clone);
+                        this.$refs.main.removeChild(clone);
                         this.allowDrag = false;
                         this.afterElementId = null;
+                        offset = 0;
                     }
                 })
             })
@@ -220,7 +230,7 @@ export default {
         },
         reorderSpecifications(subcategory, from, to) {
             console.log("IDS FOR FUNCTION: ", from, 'and ', to);
-            if (from && to && from != to) {
+            if (from != to) {
                 let url = 'https://e-commerce-b33a7-default-rtdb.firebaseio.com/categories/'
                     + subcategory.categoryId
                     + "/subcategories/"
