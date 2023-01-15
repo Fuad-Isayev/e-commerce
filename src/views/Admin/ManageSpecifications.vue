@@ -1,6 +1,7 @@
 <template>
     <div>
         <v-container ref="main">
+            <p> {{ touches }}</p>
             <v-row>
                 <v-col cols="12" class="d-flex justify-space-between">
                     <strong>CATEGORY: </strong>
@@ -138,6 +139,7 @@ export default {
             editingSpecification: null,
             afterElementId: '',
             allowDrag: false,
+            touches: "Touches"
         }
     },
     mounted() {
@@ -176,7 +178,8 @@ export default {
             draggables.forEach(draggable => {
                 let box = null;
                 draggable.addEventListener('touchstart', (e) => {
-                    if (this.allowDrag && e.targetTouches.length === 1) {
+                    if (this.allowDrag) {
+                        this.touches = e.targetTouches;
                         clone = draggable.cloneNode(true);
                         this.$refs.main.appendChild(clone);
                         clone.style.opacity = 0;
@@ -186,14 +189,15 @@ export default {
                 draggable.addEventListener('touchmove', e => {
                     if (this.allowDrag) {
                         e.preventDefault();
-                        if (e.targetTouches[0].clientY > window.innerHeight) {
+                        if (e.targetTouches[0].clientY > window.innerHeight - 10) {
                             window.scrollBy(0, 1);
                             offset = window.scrollY;
                             console.log('ofset', offset);
-                        } else {
-                            clone.style.transform = "translate(0, " + (e.targetTouches[0].clientY - box.y - 24 + offset) + "px)";
                         }
-                        // console.log(e.targetTouches[0].clientY, ' and ', box.y, ' and ', clone.style.transform, ' offset ', window.scrollY);
+                        // else {
+                        clone.style.transform = "translate(0, " + (e.targetTouches[0].clientY - box.y - 24 + offset) + "px)";
+                        // }
+                        console.log(e.targetTouches[0].clientY, ' and ', box.y, ' and ', clone.style.transform, ' offset ', window.scrollY);
                         draggable.classList.add('dragging');
                         clone.style.opacity = 1;
 
@@ -229,7 +233,7 @@ export default {
             })
         },
         reorderSpecifications(subcategory, from, to) {
-            console.log("IDS FOR FUNCTION: ", from, 'and ', to);
+            // console.log("IDS FOR FUNCTION: ", from, 'and ', to);
             if (from != to) {
                 let url = 'https://e-commerce-b33a7-default-rtdb.firebaseio.com/categories/'
                     + subcategory.categoryId
