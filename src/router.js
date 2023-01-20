@@ -6,6 +6,7 @@ import Product from "./views/Product";
 import ManageProducts from './views/Admin/ManageProducts';
 import ManageCategories from './views/Admin/ManageCategories';
 import ManageSpecifications from './views/Admin/ManageSpecifications';
+import Cart from './views/Cart';
 
 Vue.use(Router);
 
@@ -41,6 +42,11 @@ export default new Router({
             path: "/admin/manage-specs",
             name: "Manage Specifications",
             component: ManageSpecifications,
+        },
+        {
+            path: "/cart",
+            name: "Cart",
+            component: Cart,
         }
     ]
 })

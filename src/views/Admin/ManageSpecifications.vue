@@ -77,7 +77,7 @@
                         </div>
                     </v-col>
                     <v-col cols="1" class="px-0">
-                        <v-checkbox class="multiple" readonly v-model="spec.multiple">
+                        <v-checkbox class="multiple" disabled v-model="spec.multiple">
                         </v-checkbox>
                     </v-col>
                     <v-col v-if="showEdit" cols="2" class="px-0 d-flex justify-space-around">

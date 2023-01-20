@@ -106,7 +106,7 @@
                     </v-col>
                     <v-col cols="12" sm="9" :class="isMobile ? '' : 'mt-n3'">
                         <v-row>
-                            <v-col cols="12" sm="4" class="py-0"
+                            <v-col cols="6" sm="4" class="py-0"
                                 :class="!isMobile ? i % 3 ? 'pl-0 pr-1 ml-n1' : 'pl-0 pr-1' : ''"
                                 v-for="item, i in items" :key="item.id">
                                 <Items shop :item="item" />
@@ -175,7 +175,7 @@ export default {
 }
 </script>
 
-<style >
+<style lang="scss">
 .v-chip.v-size--default {
     border-radius: 50px !important;
     font-size: 14px !important;
@@ -197,5 +197,22 @@ export default {
 .v-icon {
     margin-left: auto !important;
     margin-right: auto !important;
+}
+
+.v-card--reveal {
+    align-items: center;
+    bottom: 0;
+    justify-content: center;
+    background-color: rgba(0, 150, 256, 0.433) !important;
+    position: absolute;
+    width: 100%;
+}
+
+.card1 {
+    z-index: 10;
+}
+
+.card2 {
+    z-index: 1;
 }
 </style>

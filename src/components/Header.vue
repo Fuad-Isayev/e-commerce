@@ -40,8 +40,8 @@
                             <v-icon>mdi-heart-outline</v-icon>
                         </v-badge>
                     </v-btn>
-                    <v-btn>
-                        <v-badge color="#710219" content="2">
+                    <v-btn @click="$router.push('/cart')">
+                        <v-badge color="#710219" :content="cartItemsCount">
                             <v-icon>mdi-cart-outline</v-icon>
                         </v-badge>
                     </v-btn>
@@ -78,6 +78,9 @@ export default {
     computed: {
         isMobile() {
             return this.$store.getters.isMobile;
+        },
+        cartItemsCount() {
+            return this.$store.state.cartItemsCount;
         }
     }
 }

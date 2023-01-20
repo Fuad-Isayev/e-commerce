@@ -25,8 +25,7 @@ export default {
     },
     methods: {
         loadItems(cat, subcat) {
-            this.$emit('close')
-            console.log(cat, subcat);
+            this.$emit('close');
             this.$store.dispatch('loadItems', { cat, subcat })
         }
     }

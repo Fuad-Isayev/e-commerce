@@ -18,14 +18,7 @@ export default {
   mounted() {
     window.onresize = this.getDimensions;
     this.$store.dispatch('getCategories');
-    let script = document.createElement("script");
-
-    script.src = "https://unpkg.com/default-passive-events";
-
-    script.type = "text/javascript";
-
-    // document.head.appendChild(script);
-
+    this.$store.dispatch('loadCartItems');
   },
   methods: {
     getDimensions() {

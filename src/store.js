@@ -9,6 +9,8 @@ const options = {
         screenWidth: window.innerWidth,
         categories: [],
         items: [],
+        itemsInCart: {},
+        cartItemsCount: 0,
     },
     getters: {
         isMobile(state) {
@@ -47,6 +49,42 @@ const options = {
             } else {
                 state.items = [];
             }
+        },
+        async addToCart({state, dispatch}, item) {
+            if (Object.keys(state.itemsInCart).includes(item.id)) {
+                dispatch('incrementCartItem', item.id)
+            } else {
+            await firebase.put(`/cart/${item.id}.json`, item);
+            await firebase.put(`/cart/${item.id}/amount.json`, 1);
+            dispatch('loadCartItems');
+            }
+        },
+        async deleteFromCart({dispatch}, id){
+            await firebase.delete(`/cart/${id}.json`);
+            dispatch('loadCartItems');
+        },
+        async loadCartItems({state, dispatch}){
+            const response = await firebase.get('/cart.json');
+            if(response.data) {
+                state.itemsInCart = response.data;
+            } else {
+                state.itemsInCart = [];
+            }
+            dispatch('countCartItems')
+        },
+        async incrementCartItem({state, dispatch}, id) {
+            await firebase.put(`/cart/${id}/amount.json`, state.itemsInCart[id].amount + 1);
+            dispatch('loadCartItems');
+        },
+        async decrementCartItem({state, dispatch}, id) {
+            await firebase.put(`/cart/${id}/amount.json`, state.itemsInCart[id].amount - 1);
+            dispatch('loadCartItems');
+        },
+        countCartItems({state}) {
+            state.cartItemsCount = 0;
+            Object.keys(state.itemsInCart).forEach((item) => {
+                state.cartItemsCount += state.itemsInCart[item].amount;
+            })
         }
     }
 }
