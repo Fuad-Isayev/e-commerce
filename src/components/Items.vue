@@ -19,11 +19,11 @@
                         style="height: 100%">
                         <div class="">
                             <v-col cols='12'>
-                                <v-btn @click="addToCart(item)" rounded color="white">
+                                <v-btn @click="addToCart(item)" :small="isMobile" rounded color="white">
                                     <v-icon>mdi-cart-outline</v-icon>
                                     Buy
                                 </v-btn>
-                                <v-btn fab small color="white" class="ml-2">
+                                <v-btn fab :small="!isMobile" :x-small="isMobile" color="white" class="ml-2">
                                     <v-icon color="black">mdi-heart-outline</v-icon>
                                 </v-btn>
                             </v-col>

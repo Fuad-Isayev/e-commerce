@@ -7,16 +7,20 @@
             <v-col class="d-flex align-center" cols="2">
                 <v-img :max-width="isMobile ? 50 : 100" :src="item.imgURL"></v-img>
             </v-col>
-            <v-col class="d-flex align-center" cols="5">
+            <v-col class="d-flex align-center" cols="4" sm="5">
                 <p>{{ item.name }}</p>
             </v-col>
-            <v-col class="d-flex align-center" cols="2">
+            <v-col class="d-flex align-center" cols="3" sm="2">
                 <div @click="item.amount !== 1 ? decrementCartItem(item.id) : ''" class="decrement-button"
                     :class="item.amount === 1 ? 'grey--text' : 'orange--text'" :disabled="item.amount === 1">-</div>
                 <div class="amount">
                     {{ item.amount }}
                 </div>
                 <div @click="incrementCartItem(item.id)" class="increment-button orange--text">+</div>
+                <v-overlay :value="loading" color="rgba(88, 120, 120, 0.63)">
+                    Please wait
+                    <v-progress-circular indeterminate size="32"></v-progress-circular>
+                </v-overlay>
             </v-col>
             <v-col class="d-flex align-center" cols="2">
                 <p class="m-0">
@@ -37,6 +41,11 @@ import Swal from 'sweetalert2';
 
 export default {
     name: "Cart",
+    data() {
+        return {
+            loading: false,
+        }
+    },
     computed: {
         items() {
             return this.$store.state.itemsInCart;
@@ -64,11 +73,15 @@ export default {
                 }
             })
         },
-        incrementCartItem(id) {
-            this.$store.dispatch('incrementCartItem', id)
+        async incrementCartItem(id) {
+            this.loading = true;
+            await this.$store.dispatch('incrementCartItem', id)
+            this.loading = false;
         },
-        decrementCartItem(id) {
-            this.$store.dispatch('decrementCartItem', id)
+        async decrementCartItem(id) {
+            this.loading = true;
+            await this.$store.dispatch('decrementCartItem', id)
+            this.loading = false;
         }
     }
 }
@@ -93,7 +106,7 @@ export default {
 
 .amount {
     height: 35px;
-    width: 55px;
+    width: 45px;
     border-top: 1px solid #e6e6e6;
     border-bottom: 1px solid #e6e6e6;
     display: flex;
