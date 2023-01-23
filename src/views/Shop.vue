@@ -109,7 +109,7 @@
                             <v-col cols="6" sm="4" class="py-0"
                                 :class="!isMobile ? i % 3 ? 'pl-0 pr-1 ml-n1' : 'pl-0 pr-1' : ''"
                                 v-for="item, i in items" :key="item.id">
-                                <Items shop :item="item" />
+                                <Items shop :item="item" @toggleWishlist="item.inWishlist = !item.inWishlist" />
                             </v-col>
                         </v-row>
                     </v-col>

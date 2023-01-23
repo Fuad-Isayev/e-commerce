@@ -7,6 +7,7 @@ import ManageProducts from './views/Admin/ManageProducts';
 import ManageCategories from './views/Admin/ManageCategories';
 import ManageSpecifications from './views/Admin/ManageSpecifications';
 import Cart from './views/Cart';
+import Wishlist from './views/Wishlist';
 
 Vue.use(Router);
 
@@ -47,6 +48,11 @@ export default new Router({
             path: "/cart",
             name: "Cart",
             component: Cart,
+        },
+        {
+            path: "/wishlist",
+            name: "Wishlist",
+            component: Wishlist,
         }
     ]
 })

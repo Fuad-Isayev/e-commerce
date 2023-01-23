@@ -9,8 +9,11 @@ const options = {
         screenWidth: window.innerWidth,
         categories: [],
         items: [],
-        itemsInCart: {},
+        cartItems: {},
+        wishlistItems: {},
         cartItemsCount: 0,
+        cartTotalPrice: 0,
+        wishlistItemsCount: 0,
     },
     getters: {
         isMobile(state) {
@@ -51,7 +54,7 @@ const options = {
             }
         },
         async addToCart({state, dispatch}, item) {
-            if (Object.keys(state.itemsInCart).includes(item.id)) {
+            if (Object.keys(state.cartItems).includes(item.id)) {
                 dispatch('incrementCartItem', item.id)
             } else {
             await firebase.put(`/cart/${item.id}.json`, item);
@@ -66,25 +69,53 @@ const options = {
         async loadCartItems({state, dispatch}){
             const response = await firebase.get('/cart.json');
             if(response.data) {
-                state.itemsInCart = response.data;
+                state.cartItems = response.data;
             } else {
-                state.itemsInCart = [];
+                state.cartItems = {};
+            }
+            dispatch('countCartItems')
+        },
+        async loadWishlistItems({state, dispatch}){
+            const response = await firebase.get('/wishlist.json');
+            if(response.data) {
+                state.wishlistItems = response.data;
+                state.wishlistItemsCount = Object.keys(state.wishlistItems).length;
+            } else {
+                state.wishlistItems = {};
             }
             dispatch('countCartItems')
         },
         async incrementCartItem({state, dispatch}, id) {
-            await firebase.put(`/cart/${id}/amount.json`, state.itemsInCart[id].amount + 1);
+            await firebase.put(`/cart/${id}/amount.json`, state.cartItems[id].amount + 1);
             dispatch('loadCartItems');
         },
         async decrementCartItem({state, dispatch}, id) {
-            await firebase.put(`/cart/${id}/amount.json`, state.itemsInCart[id].amount - 1);
+            await firebase.put(`/cart/${id}/amount.json`, state.cartItems[id].amount - 1);
             dispatch('loadCartItems');
         },
         countCartItems({state}) {
             state.cartItemsCount = 0;
-            Object.keys(state.itemsInCart).forEach((item) => {
-                state.cartItemsCount += state.itemsInCart[item].amount;
+            state.cartTotalPrice = 0;
+            Object.keys(state.cartItems).forEach((item) => {
+                state.cartItemsCount += state.cartItems[item].amount;
+                state.cartTotalPrice += Number(state.cartItems[item].price) * state.cartItems[item].amount;
             })
+        },
+        async addToWishlist({state, dispatch}, item) {
+            if (Object.keys(state.wishlistItems).includes(item.id)) {
+                return
+            } else {
+            await firebase.put(`/wishlist/${item.id}.json`, item);
+            await firebase.put(`/items/${item.id}/inWishlist.json`, true);
+            state.wishlistItemsCount += 1;
+            dispatch('loadWishlistItems');
+            }
+        },
+        async deleteFromWishlist({state, dispatch},id){
+            await firebase.delete(`/wishlist/${id}.json`);
+            await firebase.put(`/items/${id}/inWishlist.json`, false);
+            state.wishlistItemsCount -= 1;
+            dispatch('loadWishlistItems');
         }
     }
 }

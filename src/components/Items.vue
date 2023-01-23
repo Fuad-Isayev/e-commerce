@@ -23,12 +23,15 @@
                                     <v-icon>mdi-cart-outline</v-icon>
                                     Buy
                                 </v-btn>
-                                <v-btn fab :small="!isMobile" :x-small="isMobile" color="white" class="ml-2">
-                                    <v-icon color="black">mdi-heart-outline</v-icon>
+                                <v-btn @click="addToWishlist(item)" fab :small="!isMobile" :x-small="isMobile"
+                                    color="white" class="ml-2">
+                                    <v-icon v-if="!item.inWishlist" color="black">mdi-heart-outline</v-icon>
+                                    <v-icon v-if="item.inWishlist" color="#b20219">mdi-heart</v-icon>
                                 </v-btn>
                             </v-col>
                             <v-col cols='12'>
-                                <v-btn rounded class="about-button">More about</v-btn>
+                                <v-btn @click="$router.push(`/products/${item.id}`)" rounded class="about-button">More
+                                    about</v-btn>
                             </v-col>
                         </div>
                     </div>
@@ -56,6 +59,7 @@
 </template>
 
 <script>
+
 export default {
     name: 'Items',
     props: {
@@ -67,13 +71,23 @@ export default {
         isMobile() {
             return this.$store.getters.isMobile;
         },
-        itemsInCart() {
-            return this.$store.state.itemsInCart;
+        cartItems() {
+            return this.$store.state.cartItems;
         }
     },
     methods: {
         addToCart(item) {
-            this.$store.dispatch('addToCart', item)
+            this.$store.dispatch('addToCart', item);
+        },
+        addToWishlist(item) {
+            if (!item.inWishlist) {
+                this.$store.dispatch('addToWishlist', item);
+                console.log('hover', this.hover);
+                this.$set(item, 'inWishlist', true);
+            } else {
+                this.$store.dispatch('deleteFromWishlist', item.id);
+                this.$set(item, 'inWishlist', false);
+            }
         }
     }
 }

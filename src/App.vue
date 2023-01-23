@@ -19,6 +19,7 @@ export default {
     window.onresize = this.getDimensions;
     this.$store.dispatch('getCategories');
     this.$store.dispatch('loadCartItems');
+    this.$store.dispatch('loadWishlistItems');
   },
   methods: {
     getDimensions() {
