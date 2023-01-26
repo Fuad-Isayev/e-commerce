@@ -126,7 +126,7 @@ export default {
                 console.log("No values");
                 this.specification.values = new Array;
             }
-            value ? this.specification.values.push(value) : null;
+            value ? this.specification.values.push(value.toLowerCase()) : null;
             setTimeout(this.scrollDown, 100);
         },
         editValue(payload) {
@@ -145,26 +145,26 @@ export default {
                 }
             })
         },
-        mounted() {
-            if (this.editingItem) {
-                this.specification = this.editingItem;
-                this.title = this.editingItem.name;
-            }
-        },
-        watch: {
-            editingItem(val) {
-                if (val) {
-                    this.specification = val;
-                    this.title = val.name;
-                } else {
-                    this.specification = {
-                        type: '',
-                        name: '',
-                        values: [],
-                        multiple: false,
-                    };
-                    this.title = "Add Specification"
-                }
+    },
+    mounted() {
+        if (this.editingItem) {
+            this.specification = this.editingItem;
+            this.title = this.editingItem.name;
+        }
+    },
+    watch: {
+        editingItem(val) {
+            if (val) {
+                this.specification = val;
+                this.title = val.name;
+            } else {
+                this.specification = {
+                    type: '',
+                    name: '',
+                    values: [],
+                    multiple: false,
+                };
+                this.title = "Add Specification"
             }
         }
     }

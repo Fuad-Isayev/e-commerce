@@ -4,11 +4,12 @@
             <v-row flat>
                 <v-col cols="10"></v-col>
                 <v-col cols="2" class="d-flex justify-end">
-                    <v-btn @click="toggleShowModal" right color="success">ADD ITEM</v-btn>
+                    <v-btn @click="toggleShowModal()" right color="success">ADD ITEM</v-btn>
                 </v-col>
                 <v-dialog v-model="showModal" light :width="isMobile ? '100%' : '50%'">
                     <template>
-                        <AddItem :isMobile="isMobile" @close=toggleShowModal />
+                        <AddItem :editingItem="editingItem" :isMobile="isMobile" @close=toggleShowModal()
+                            @getItems="getItems" />
                     </template>
                 </v-dialog>
             </v-row>
@@ -41,8 +42,8 @@
                 </v-col>
                 <v-col cols="12" sm="10">
                     <v-row>
-                        <v-col sm="3" v-for="item in items" :key="item.id">
-                            <Items admin @delete-item="deleteItem" :item="item" />
+                        <v-col cols="6" sm="3" v-for="item in items" :key="item.id">
+                            <Items admin @delete-item="deleteItem" @edit-item="toggleShowModal" :item="item" />
                         </v-col>
                     </v-row>
                 </v-col>
@@ -83,6 +84,7 @@ export default {
             submit_loading: false,
             submit_disabled: false,
             uploadProgress: 0,
+            editingItem: null,
         }
     },
     components: {
@@ -93,7 +95,8 @@ export default {
         this.getItems();
     },
     methods: {
-        toggleShowModal() {
+        toggleShowModal(item = null) {
+            this.editingItem = item;
             this.showModal = !this.showModal;
         },
         getImageUrl(event) {

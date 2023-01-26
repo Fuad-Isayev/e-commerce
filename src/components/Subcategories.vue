@@ -8,7 +8,7 @@
                     </v-list-item-icon>
                     <v-list-item-content>
                         <v-list-item-title v-text="subcategory.name"
-                            @click="loadItems(selectedCategory.name, subcategory.name)">
+                            @click="loadItems(selectedCategory.id, subcategory.id)">
                         </v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>

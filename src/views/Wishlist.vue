@@ -6,7 +6,7 @@
                 <Items shop :item="item" />
             </v-col> -->
             <v-col cols="2">
-                <v-img :max-width="isMobile ? 50 : 100" :src="item.imgURL"></v-img>
+                <v-img :max-width="isMobile ? 50 : 100" :src="item.imgURL.resized"></v-img>
             </v-col>
             <v-col cols="4" sm="5">
                 <p>{{ item.name }}</p>

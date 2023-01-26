@@ -42,7 +42,7 @@ const options = {
             }
         },
         async loadItems({state}, payload) {
-            const response = await firebase.get(`/items/${payload.cat}/${payload.subcat}.json`);
+            const response = await firebase.get(`/items.json?orderBy="subcategoryID"&equalTo="${payload.subcat}"`);
             if (response.data) {
                 let keys = Object.keys(response.data);
                 let items = keys.map(key => {
@@ -105,10 +105,10 @@ const options = {
             if (Object.keys(state.wishlistItems).includes(item.id)) {
                 return
             } else {
-            await firebase.put(`/wishlist/${item.id}.json`, item);
-            await firebase.put(`/items/${item.id}/inWishlist.json`, true);
-            state.wishlistItemsCount += 1;
-            dispatch('loadWishlistItems');
+                await firebase.put(`/wishlist/${item.id}.json`, item);
+                await firebase.put(`/items/${item.id}/inWishlist.json`, true);
+                state.wishlistItemsCount += 1;
+                dispatch('loadWishlistItems');
             }
         },
         async deleteFromWishlist({state, dispatch},id){

@@ -1,9 +1,9 @@
 <template>
     <div>
-        <v-hover v-slot:default="{ hover }">
-            <v-card flat outlined tile v-if="shop" class="" max-width="500">
+        <v-hover v-if="shop" v-slot:default="{ hover }">
+            <v-card flat outlined tile class="" max-width="500">
                 <div>
-                    <v-img contain :src=item.imgURL :max-width="isMobile ? '100%' : '290.25px'"
+                    <v-img contain :src=item.imgURL.resized :max-width="isMobile ? '100%' : '290.25px'"
                         :max-height="isMobile ? '100%' : '290.25px'">
                     </v-img>
                 </div>
@@ -38,23 +38,27 @@
                 </v-expand-transition>
             </v-card>
         </v-hover>
-        <!-- <v-card v-if="admin" class="mx-auto my-5 hover py-5" max-width="500">
+        <v-card v-if="admin" class="mx-auto my-5 hover py-5" max-width="500">
             <div style="height: 222.8px">
-                <v-img max-width="222.8px" max-height="222.8px" :src=item.imgURL>
+                <v-img :max-width="isMobile ? '100%' : '290.25px'" :max-height="isMobile ? '100%' : '290.25px'"
+                    :src=item.imgURL.resized>
                 </v-img>
             </div>
             <v-card-title class="font-weight-bold text-h6">
                 ${{ item.price }}
             </v-card-title>
-            <v-card-title class="font-weight-bold text-h6 justify-space-between">
+            <v-card-title class="font-weight-bold text-subtitle-1 justify-space-between">
                 {{ item.name }}
-                <v-btn @click="$emit('delete-item', item.id, item.imgID)" icon>
-                    <v-icon color="red">
-                        mdi-delete
-                    </v-icon>
-                </v-btn>
             </v-card-title>
-        </v-card> -->
+            <v-card-actions class="d-flex justify-space-between">
+                <v-btn text @click="$emit('edit-item', item)" color="green">
+                    Edit
+                </v-btn>
+                <v-btn text @click="$emit('delete-item', item.id, item.imgID)" color="red">
+                    Delete
+                </v-btn>
+            </v-card-actions>
+        </v-card>
     </div>
 </template>
 
@@ -76,7 +80,7 @@ export default {
         }
     },
     methods: {
-        addToCart(item) {
+        async addToCart(item) {
             this.$store.dispatch('addToCart', item);
         },
         addToWishlist(item) {

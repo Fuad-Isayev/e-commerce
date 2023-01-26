@@ -1,17 +1,18 @@
 <template>
     <div class="position-relative">
-        <img ref="previewImage" class="mx-auto contain" style="width:100%" :src="item.imgURL || defaultImg" alt="">
+        <img ref="previewImage" class="mx-auto contain" style="width:100%" :src="item.imgURL?.resized || defaultImg"
+            alt="">
         <v-col class="custom-upload-button">
-            <v-btn v-if="!this.imgID" @click="handleSubmit" color="primary">
+            <v-btn v-if="!this.imgURL.resized" @click="handleSubmit" color="primary">
                 Choose
                 Image</v-btn>
         </v-col>
-        <label hidden ref="label" for="image"></label>
+        <label hidden ref="image" for="image"></label>
         <v-form ref="form">
             <v-file-input @change="getImgUrl" class="d-none" ref="imageUpload" id="image" :rules="[rules.fileIput]"
                 accept="image/png, image/jpeg, image/bmp"></v-file-input>
         </v-form>
-        <div class="mt-3" v-if="this.imgID">
+        <div class="mt-3" v-if="this.imgURL.resized">
             <v-btn class="mr-1" small color="success" @click="handleSubmit">Change Image</v-btn>
             <v-btn small color="error" @click="deleteImage">Delete Image</v-btn>
         </div>
@@ -26,6 +27,7 @@ export default {
     name: "AddImage",
     props: {
         item: Object,
+        url: Object,
     },
     data() {
         return {
@@ -34,12 +36,15 @@ export default {
             },
             imgID: '',
             defaultImg: 'https://ik.imagekit.io/f5u3a9d5/no-image.png',
-            imgURL: '',
+            imgURL: {
+                original: "",
+                resized: ""
+            },
         }
     },
     methods: {
         handleSubmit() {
-            this.$refs.label.click();
+            this.$refs.image.click();
         },
         getImgUrl(event) {
             if (this.$refs.imageUpload.validate() && event) {
@@ -52,12 +57,13 @@ export default {
                 }).then(res => {
                     console.log(res)
                     this.imgID = res.fileId;
+                    this.imgURL.original = res.url;
                     if (res.height > res.width) {
-                        this.imgURL = res.url + "/tr:h-300";
+                        this.imgURL.resized = res.url + "/tr:h-300";
                     } else {
-                        this.imgURL = res.url + "/tr:w-300";
+                        this.imgURL.resized = res.url + "/tr:w-300";
                     }
-                    this.imgURL;
+                    this.$set(this.item, "imgURL", this.imgURL);
                     this.$emit('select', { imgID: this.imgID, imgURL: this.imgURL })
                 }).then(error => {
                     console.log(error);
@@ -70,16 +76,16 @@ export default {
                 this.$emit('select', { imgID: '', imgURL: '' })
                 await axios.get(`https://my-e-commerce-backend.vercel.app/delete/${this.imgID}`)
                 this.imgID = '';
-                this.imgURL = "";
+                this.imgURL = {};
             }
         },
     },
     watch: {
         url(val) {
             if (val) {
-                this.imgURL = val
+                this.imgURL = val;
             } else {
-                this.imgURL = '';
+                this.imgURL = {};
                 this.imgID = '';
             }
         }

@@ -3,7 +3,7 @@
         <v-container>
             <v-row class="mt-0">
                 <v-col outlined class="text-center" cols="12" sm="5">
-                    <AddImage ref="addImage" :item="item" @select="setImgUrl" />
+                    <AddImage ref="addImage" :url="imgURL" :item="item" @select="setImgUrl" />
                 </v-col>
                 <v-col cols="12" sm="7">
                     <v-toolbar flat>
@@ -20,7 +20,7 @@
                             <template v-slot:activator="{ on, attrs }">
                                 <v-btn :small="isMobile" color="primary" style="opacity:80%" dark v-bind="attrs"
                                     v-on="on">
-                                    {{ category ? category.name : "Choose Category" }}
+                                    {{ subcategory? subcategory.name : "Choose Category" }}
                                 </v-btn>
                             </template>
                             <v-list height="300" class="overflow-auto">
@@ -50,9 +50,9 @@
                     </v-toolbar>
                 </v-col>
             </v-row>
-            <v-row v-if="category">
-                <strong>CPECIFICATIONS:</strong>
-                <v-row class="my-2 align-center" v-for="(spec, index) in category.specifications" :key="index">
+            <v-row v-if="subcategory">
+                <strong>SPECIFICATIONS:</strong>
+                <v-row class="my-2 align-center" v-for="(spec, index) in subcategory.specifications" :key="index">
                     <v-col cols="4"> <strong class="mr-6 py-5">{{ spec.name }}: </strong></v-col>
                     <v-col cols="8" class="overflow-auto py-1">
                         <v-chip-group v-if="spec.type === 'color'" column :multiple="spec.multiple"
@@ -89,7 +89,7 @@
                 </v-row>
                 <v-row class="mb-2">
                     <v-col class="text-center">
-                        <v-btn class="mr-1" color="success" @click="addItem()">
+                        <v-btn class="mr-1" color="success" @click="editingItem ? editItem() : addItem()">
                             Submit
                         </v-btn>
                         <v-btn @click="cancelAddItem()" color="error">Cancel</v-btn>
@@ -104,20 +104,19 @@
 import Swal from 'sweetalert2';
 import firebase from '../../../../firebase';
 import AddImage from "./AddImage";
-// import Swal from 'sweetalert2';
 
 export default {
     name: "AddItem",
     props: {
         isMobile: Boolean,
+        editingItem: Object,
     },
     components: {
         AddImage,
     },
     data() {
         return {
-            category: null,
-            specifications: [],
+            subcategory: null,
             item: {
                 specifications: {}
             },
@@ -125,7 +124,9 @@ export default {
     },
     methods: {
         chooseCategory(cat, subcat) {
-            this.category = { ...subcat, category: cat.name };
+            this.subcategory = { ...subcat, category: cat.name };
+            this.item.categoryID = cat.id;
+            this.item.subcategoryID = subcat.id;
         },
         chooseValue(spec, value) {
             spec.selectedValue = value;
@@ -134,29 +135,37 @@ export default {
         async addItem() {
             console.log(this.item);
             try {
-                await firebase.post(`items/${this.category.category}/${this.category.name}.json`, this.item);
-                let res = await firebase.get('/items.json');
-                console.log(res)
-                Swal.fire("Item added", '', 'success')
-                this.$emit('close');
+                await firebase.post(`/items.json`, this.item);
+                Swal.fire("Item added", '', 'success');
+                this.$emit('getItems');
                 this.resetForm();
+                this.$emit('close');
             }
             catch (err) {
                 console.log(err);
-                Swal.fire(err.response.data.error, '', 'error')
+                Swal.fire(err.response.data.error, '', 'error');
             }
+        },
+        async editItem() {
+            await firebase.put(`/items/${this.item.id}.json`, this.item);
+            await firebase.get('/items.json');
+            this.$emit('getItems');
+            this.resetForm();
+            this.$emit('close');
         },
         setImgUrl(payload) {
             this.item.imgID = payload.imgID;
             this.item.imgURL = payload.imgURL;
         },
-        resetForm() {
-            this.category = null;
+        resetForm(deleteImg = false) {
+            this.subcategory = null;
             this.item = {
                 specifications: {}
             };
             console.log(this.$refs, ' o ', this.$refs.addImage)
-            this.$refs.addImage.deleteImage();
+            if (deleteImg) {
+                this.$refs.addImage.deleteImage();
+            }
         },
         cancelAddItem() {
             Swal.fire({
@@ -167,7 +176,7 @@ export default {
                 denyButtonText: `Yes`,
             }).then(async (result) => {
                 if (result.isDenied) {
-                    this.resetForm();
+                    this.resetForm(true);
                     this.$emit('close')
                 }
             })
@@ -178,7 +187,33 @@ export default {
             return this.$store.state.categories;
         },
         imgURL() {
-            return this.item.imgURL;
+            return this.item.imgURL || null;
+        }
+    },
+    async mounted() {
+        if (this.editingItem) {
+            this.item = this.editingItem?.specifications ? this.editingItem : { ...this.editingItem, specifications: {} }
+            const response = await firebase.get(`/categories/${this.editingItem.categoryID}/subcategories/${this.editingItem.subcategoryID}.json`);
+            console.log(response);
+            this.subcategory = response.data;
+        } else {
+            this.item = { specifications: {} };
+        }
+    },
+    watch: {
+        async editingItem(val) {
+            if (val) {
+                if (val.specifications) {
+                    this.item = val;
+                    const response = await firebase.get(`/categories/${val.categoryID}/subcategories/${val.subcategoryID}.json`);
+                    console.log(response);
+                    this.subcategory = response.data;
+                } else {
+                    this.item = { ...val, specifications: {} }
+                }
+            } else {
+                this.item = { specifications: {} }
+            }
         }
     }
 }

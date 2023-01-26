@@ -139,7 +139,7 @@ export default {
             editingSpecification: null,
             afterElementId: '',
             allowDrag: false,
-            touches: "Touches"
+            touches: 0,
         }
     },
     mounted() {
@@ -167,6 +167,9 @@ export default {
                 this.subcategory = val[this.subcategory.categoryId].subcategories[this.subcategory.id];
                 this.getSpecifications(this.subcategory);
             }
+        },
+        touches(val) {
+            console.log(val)
         }
     },
     methods: {
@@ -180,6 +183,7 @@ export default {
                 draggable.addEventListener('touchstart', (e) => {
                     if (this.allowDrag) {
                         this.touches = e.targetTouches.length;
+                        console.log(e);
                         clone = draggable.cloneNode(true);
                         this.$refs.main.appendChild(clone);
                         clone.style.opacity = 0;
@@ -192,16 +196,14 @@ export default {
                         if (e.targetTouches[0].clientY > window.innerHeight - 10) {
                             window.scrollBy(0, 1);
                             offset = window.scrollY;
-                            console.log('ofset', offset);
+                            // console.log('ofset', offset);
                         }
                         // else {
                         clone.style.transform = "translate(0, " + (e.targetTouches[0].clientY - box.y - 24 + offset) + "px)";
                         // }
-                        console.log(e.targetTouches[0].clientY, ' and ', box.y, ' and ', clone.style.transform, ' offset ', window.scrollY);
+                        // console.log(e.targetTouches[0].clientY, ' and ', box.y, ' and ', clone.style.transform, ' offset ', window.scrollY);
                         draggable.classList.add('dragging');
                         clone.style.opacity = 1;
-
-
                         this.afterElementId = this.getDragAfterElement(e.targetTouches[0].clientY)?.id || null;
                     }
                 })
