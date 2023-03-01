@@ -15,11 +15,14 @@ export default {
   components: {
     Header,
   },
-  mounted() {
+  async mounted() {
     window.onresize = this.getDimensions;
+    await this.$store.dispatch('loadAllItems');
     this.$store.dispatch('getCategories');
     this.$store.dispatch('loadCartItems');
     this.$store.dispatch('loadWishlistItems');
+    this.$store.dispatch('getSubcategories');
+    // this.$store.commit('getSelectedFilterOptions');
   },
   methods: {
     getDimensions() {

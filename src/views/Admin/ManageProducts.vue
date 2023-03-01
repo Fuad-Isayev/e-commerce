@@ -2,38 +2,44 @@
     <div>
         <v-container>
             <v-row flat>
-                <v-col cols="10"></v-col>
+                <v-col cols="2">
+                    <router-link class="text-decoration-none text-sm-h5 font-weight-medium" to="/admin">
+                        <v-btn color="primary">
+                            <v-icon>mdi-chevron-left</v-icon> Admin panel
+                        </v-btn>
+                    </router-link>
+                </v-col>
+                <v-col cols="8"></v-col>
                 <v-col cols="2" class="d-flex justify-end">
                     <v-btn @click="toggleShowModal()" right color="success">ADD ITEM</v-btn>
                 </v-col>
                 <v-dialog v-model="showModal" light :width="isMobile ? '100%' : '50%'">
                     <template>
-                        <AddItem :editingItem="editingItem" :isMobile="isMobile" @close=toggleShowModal()
-                            @getItems="getItems" />
+                        <AddItem :editingItem="editingItem" :isMobile="isMobile" @close=toggleShowModal() />
                     </template>
                 </v-dialog>
             </v-row>
             <v-row>
                 <div class="centered">
                     <!-- <v-form @submit.prevent="handleSubmit" ref="form">
-                        <v-file-input @click:clear="deleteImage(imgID)" @change="getImageUrl" show-size
-                            :rules="[rules.fileIput]" accept="image/png, image/jpeg, image/bmp"
-                            placeholder="Choose file" prepend-icon="mdi-image" label="Choose file" ref="imagekit">
-                        </v-file-input>
-                        <img v-if="imgID" :src="loadedImagePath" width="100">
-                        <v-progress-linear v-if="submit_disabled" v-model="uploadProgress" height="25">
-                            <strong>{{ Math.ceil(uploadProgress) }}%</strong>
-                        </v-progress-linear>
-                        <h6 style="color: red"> {{ error_msg }}</h6>
-                        <h6 style="color: green"> {{ success_msg }}</h6>
-                        <v-text-field :rules="[rules.required]" v-model="itemName" label="Name" ref="name">
-                        </v-text-field>
-                        <v-text-field :rules="[rules.required]" v-model="itemPrice" label="Price" ref="price">
-                        </v-text-field>
-                        <v-btn :disabled="submit_disabled" :loading="submit_loading" class="btn btn-primary"
-                            @click="handleSubmit">Add
-                            item</v-btn>
-                    </v-form> -->
+                            <v-file-input @click:clear="deleteImage(imgID)" @change="getImageUrl" show-size
+                                :rules="[rules.fileIput]" accept="image/png, image/jpeg, image/bmp"
+                                placeholder="Choose file" prepend-icon="mdi-image" label="Choose file" ref="imagekit">
+                            </v-file-input>
+                            <img v-if="imgID" :src="loadedImagePath" width="100">
+                            <v-progress-linear v-if="submit_disabled" v-model="uploadProgress" height="25">
+                                <strong>{{ Math.ceil(uploadProgress) }}%</strong>
+                            </v-progress-linear>
+                            <h6 style="color: red"> {{ error_msg }}</h6>
+                            <h6 style="color: green"> {{ success_msg }}</h6>
+                            <v-text-field :rules="[rules.required]" v-model="itemName" label="Name" ref="name">
+                            </v-text-field>
+                            <v-text-field :rules="[rules.required]" v-model="itemPrice" label="Price" ref="price">
+                            </v-text-field>
+                            <v-btn :disabled="submit_disabled" :loading="submit_loading" class="btn btn-primary"
+                                @click="handleSubmit">Add
+                                item</v-btn>
+                        </v-form> -->
                 </div>
             </v-row>
             <v-row>
@@ -49,7 +55,7 @@
                 </v-col>
             </v-row>
         </v-container>
-    </div>
+</div>
 </template>
 
 <script>
@@ -72,7 +78,6 @@ export default {
             itemPrice: '',
             imgURl: '',
             imgID: '',
-            items: [],
             image: '',
             error_msg: '',
             success_msg: '',
@@ -92,7 +97,7 @@ export default {
         AddItem,
     },
     created() {
-        this.getItems();
+        this.$store.dispatch('loadAllItems');
     },
     methods: {
         toggleShowModal(item = null) {
@@ -149,7 +154,7 @@ export default {
                         imgID: this.imgID,
                     })
                     Swal.fire("Item added!", '', 'success')
-                    this.getItems();
+                    this.$store.dispatch('loadAllItems');
                     this.resetForm();
                 } catch (err) {
                     console.log(err);
@@ -157,19 +162,6 @@ export default {
                     Swal.fire(this.error_msg, '', 'error')
                 }
             }
-        },
-        async getItems() {
-            const response = await firebase.get('/items.json');
-            if (response.data) {
-                let keys = Object.keys(response.data);
-                let items = keys.map(key => {
-                    return { ...response.data[key], id: key };
-                })
-                this.items = items;
-            } else {
-                this.items = [];
-            }
-
         },
         async deleteItem(id, imgID) {
             Swal.fire({
@@ -179,10 +171,9 @@ export default {
                 showConfirmButton: false,
                 denyButtonText: `Yes`,
             }).then(async (result) => {
-                /* Read more about isConfirmed, isDenied below */
                 if (result.isDenied) {
                     await firebase.delete('/items/' + id + '.json');
-                    this.getItems();
+                    this.$store.dispatch('loadAllItems');
                     await this.deleteImage(imgID);
                     Swal.fire('File deleted!', '', 'success')
                 }
@@ -207,6 +198,9 @@ export default {
     computed: {
         progress() {
             return this.uploadProgress;
+        },
+        items() {
+            return this.$store.state.items;
         }
     },
     watch: {

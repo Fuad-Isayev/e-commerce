@@ -8,9 +8,8 @@
                 <v-list>
                     <v-list-item-group>
                         <v-list-item v-for="(item, i) in items" :key="i">
-                            <v-list-item-content>
-                                <v-list-item-title @click="selectItem(item.id, i)" class="mx-auto"
-                                    v-text="(item.name || item)">
+                            <v-list-item-content @click="selectItem(item.id, i)">
+                                <v-list-item-title class="mx-auto" v-text="(item.name || item)">
                                 </v-list-item-title>
                             </v-list-item-content>
                             <div v-if="(selectedItem === i)">
@@ -24,8 +23,8 @@
                             </div>
                             <v-expand-transition>
                                 <div v-if="(showEdit && (selectedItem === i))" class="edit-buttons">
-                                    <v-btn small class=" mb-1 d-block">
-                                        <v-icon @click="toggleEditName(item, i)">
+                                    <v-btn @click="toggleEditName(item, i)" small class=" mb-1 d-block">
+                                        <v-icon>
                                             mdi-pencil</v-icon>
                                     </v-btn>
                                     <v-btn small>
@@ -54,7 +53,7 @@
         <v-dialog v-model="editName" overlay-opacity="0.3" width="300px">
             <v-card>
                 <p class="text-center">Edit name</p>
-                <v-text-field class="px-5" autofocus v-model="item">
+                <v-text-field class="px-5" autofocus v-model="item.name">
                 </v-text-field>
                 <div class="text-center pb-2">
                     <v-btn @click="toggleEditName" color="error" class="mr-2">Cancel</v-btn>
@@ -74,7 +73,7 @@ export default {
     },
     data() {
         return {
-            item: "",
+            item: {},
             itemId: '',
             showAddItems: false,
             showEdit: false,
@@ -98,8 +97,9 @@ export default {
         toggleEditName(item, index) {
             this.showAddItems = false;
             this.editName = !this.editName;
-            this.item = item.name || item;
-            this.itemId = item.id || index;
+            this.item = typeof item === "object" ? item : {};
+            this.item.name = item.name || item;
+            this.item.id = item.id || index;
         },
         selectItem(id, index) {
             this.selectedItem = index;
@@ -111,7 +111,7 @@ export default {
             this.item = "";
         },
         editItem() {
-            this.$emit('editItem', { id: this.itemId, name: this.item });
+            this.$emit('editItem', this.item);
             this.itemId = '';
             this.editName = !this.editName;
             this.toggleShowEdit();

@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Router from "vue-router";
-import Shop from "./views/Shop";
+// import Shop from "./views/Shop";
 import Admin from "./views/Admin/Admin";
 import Product from "./views/Product";
 import ManageProducts from './views/Admin/ManageProducts';
@@ -8,6 +8,9 @@ import ManageCategories from './views/Admin/ManageCategories';
 import ManageSpecifications from './views/Admin/ManageSpecifications';
 import Cart from './views/Cart';
 import Wishlist from './views/Wishlist';
+import Catalog from './views/Catalog';
+import CategoryList from './views/CategoryList';
+import Home from './views/Home';
 
 Vue.use(Router);
 
@@ -16,8 +19,8 @@ export default new Router({
     routes: [
         {
             path: "/" ,
-            name: "Shop",
-            component: Shop,
+            name: "Home",
+            component: Home,
         },
         {
             path: "/products/:id",
@@ -53,6 +56,16 @@ export default new Router({
             path: "/wishlist",
             name: "Wishlist",
             component: Wishlist,
-        }
+        },
+        {
+            path: "/catalog/:category/:subcategory",
+            name: "Catalog",
+            component: Catalog,
+        },
+        {
+            path: "/catalog/:category",
+            name: "CategoryList",
+            component: CategoryList,
+        },
     ]
 })

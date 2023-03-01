@@ -53,7 +53,7 @@
                 </v-list-item-group>
             </v-list>
         </v-navigation-drawer>
-    </div>
+</div>
 </template>
 
 <script>
@@ -73,7 +73,7 @@ export default {
     },
     methods: {
         goHome() {
-            if (this.$route.path !== "/") {
+            if (this.$route.path !== "/" || Object.keys(this.$route.query).length > 0) {
                 this.$router.push("/");
             } else {
                 this.drawer = false;

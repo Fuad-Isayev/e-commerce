@@ -102,15 +102,15 @@ export default {
             })
         },
         async addItem(subcat) {
-            await firebase.post(`/categories/${subcat.categoryId}/subcategories/${subcat.id}/specifications.json`, this.specification);
-            this.$store.dispatch('getCategories');
+            await firebase.post(`subcategories/${subcat.id}/specifications.json`, this.specification);
+            this.$store.dispatch('getSubcategories');
             this.resetItem();
-            this.$emit('itemAdded')
+            this.$emit('itemAdded');
             this.$emit('close');
         },
         async editItem(subcat, spec) {
-            await firebase.put(`/categories/${subcat.categoryId}/subcategories/${subcat.id}/specifications/${spec.id}.json`, spec);
-            this.$store.dispatch('getCategories');
+            await firebase.put(`/subcategories/${subcat.id}/specifications/${spec.id}.json`, spec);
+            this.$store.dispatch('getSubcategories');
             this.$emit('close');
         },
         resetItem() {
@@ -121,12 +121,21 @@ export default {
                 multiple: false,
             }
         },
-        addValue(value) {
+        async addValue(value) {
             if (!this.specification.values) {
                 console.log("No values");
                 this.specification.values = new Array;
             }
-            value ? this.specification.values.push(value.toLowerCase()) : null;
+            if (value) {
+                if (this.specification.name === "Color") {
+                    const color = await firebase.get(`/colors.json?orderBy="name"&equalTo="${value}"`)
+                    console.log(color);
+                    this.specification.values.push({ ...Object.values(color.data)[0] })
+                }
+                else {
+                    this.specification.values.push(value.toLowerCase())
+                }
+            }
             setTimeout(this.scrollDown, 100);
         },
         editValue(payload) {

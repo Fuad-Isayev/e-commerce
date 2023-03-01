@@ -18,16 +18,15 @@
                         <v-spacer></v-spacer>
                         <v-menu bottom offset-y>
                             <template v-slot:activator="{ on, attrs }">
-                                <v-btn :small="isMobile" color="primary" style="opacity:80%" dark v-bind="attrs"
-                                    v-on="on">
-                                    {{ subcategory? subcategory.name : "Choose Category" }}
+                                <v-btn :small="isMobile" color="primary" style="opacity:80%" dark v-bind="attrs" v-on="on">
+                                    {{ subcategory ? subcategory.name : "Choose Category" }}
                                 </v-btn>
                             </template>
                             <v-list height="300" class="overflow-auto">
                                 <div v-for="(cat, index) in categories" :key="index">
                                     <strong>{{ cat.name }}</strong>
                                     <v-list-item-group>
-                                        <v-list-item v-for="(subcategory, index) in cat.subcategories" :key="index"
+                                        <v-list-item v-for="(subcategory, index) in filterSubcategories(cat)" :key="index"
                                             @click="chooseCategory(cat, subcategory)">
                                             <v-list-item-title>{{ subcategory.name }}</v-list-item-title>
                                         </v-list-item>
@@ -58,9 +57,10 @@
                         <v-chip-group v-if="spec.type === 'color'" column :multiple="spec.multiple"
                             v-model="item.specifications[spec.name.toLowerCase()]">
                             <v-chip v-for="(color, index) in spec.values" :key="index" :small="isMobile" filter
-                                :color="color === 'white' ? 'black' : color" :outlined="color === 'white'"
-                                :text-color="color === 'white' ? 'black' : color === 'yellow' ? 'red' : 'white'"
-                                class=" overflow-auto ml-2" :value="color">
+                                :color="color === 'white' ? 'black' : color === 'gold' ? 'amber' : (color.hex || color)"
+                                :outlined="color === 'white'"
+                                :text-color="color === 'white' ? 'black' : color === 'yellow' ? 'red' : color === 'gold' ? 'red' : 'white'"
+                                class="ml-2" :value="color">
                             </v-chip>
                         </v-chip-group>
                         <v-chip-group v-if="spec.type === 'number'" column :multiple="spec.multiple"
@@ -71,9 +71,11 @@
                         </v-chip-group>
                         <v-menu v-if="spec.type === 'string'" class="d-flex align-center" bottom offset-y>
                             <template v-slot:activator="{ on, attrs }">
-                                <v-btn :small="isMobile" color="primary" style="opacity:80%" dark v-bind="attrs"
-                                    v-on="on">
-                                    {{ spec.selectedValue ? spec.selectedValue : 'Choose ' + spec.name }}
+                                <v-btn :small="isMobile" color="primary" style="opacity:80%" dark v-bind="attrs" v-on="on">
+                                    {{
+                                        item.specifications[spec.name.toLowerCase()] || (spec.selectedValue ?
+                                            spec.selectedValue : 'Choose ' + spec.name)
+                                    }}
                                 </v-btn>
                             </template>
                             <v-list>
@@ -124,7 +126,7 @@ export default {
     },
     methods: {
         chooseCategory(cat, subcat) {
-            this.subcategory = { ...subcat, category: cat.name };
+            this.subcategory = subcat;
             this.item.categoryID = cat.id;
             this.item.subcategoryID = subcat.id;
         },
@@ -137,7 +139,7 @@ export default {
             try {
                 await firebase.post(`/items.json`, this.item);
                 Swal.fire("Item added", '', 'success');
-                this.$emit('getItems');
+                this.$store.dispatch('loadAllItems');
                 this.resetForm();
                 this.$emit('close');
             }
@@ -148,8 +150,7 @@ export default {
         },
         async editItem() {
             await firebase.put(`/items/${this.item.id}.json`, this.item);
-            await firebase.get('/items.json');
-            this.$emit('getItems');
+            this.$store.dispatch('loadAllItems');
             this.resetForm();
             this.$emit('close');
         },
@@ -177,14 +178,21 @@ export default {
             }).then(async (result) => {
                 if (result.isDenied) {
                     this.resetForm(true);
+                    this.$store.dispatch('loadAllItems');
                     this.$emit('close')
                 }
             })
+        },
+        filterSubcategories(category) {
+            return this.subcategories.filter(subcat => subcat.categoryID === category.id);
         }
     },
     computed: {
         categories() {
             return this.$store.state.categories;
+        },
+        subcategories() {
+            return this.$store.state.subcategories;
         },
         imgURL() {
             return this.item.imgURL || null;
@@ -193,9 +201,7 @@ export default {
     async mounted() {
         if (this.editingItem) {
             this.item = this.editingItem?.specifications ? this.editingItem : { ...this.editingItem, specifications: {} }
-            const response = await firebase.get(`/categories/${this.editingItem.categoryID}/subcategories/${this.editingItem.subcategoryID}.json`);
-            console.log(response);
-            this.subcategory = response.data;
+            this.subcategory = this.subcategories.find(subcat => subcat.id === this.editingItem.subcategoryID);
         } else {
             this.item = { specifications: {} };
         }
@@ -205,9 +211,7 @@ export default {
             if (val) {
                 if (val.specifications) {
                     this.item = val;
-                    const response = await firebase.get(`/categories/${val.categoryID}/subcategories/${val.subcategoryID}.json`);
-                    console.log(response);
-                    this.subcategory = response.data;
+                    this.subcategory = this.subcategories.find(subcat => subcat.id === val.subcategoryID);
                 } else {
                     this.item = { ...val, specifications: {} }
                 }

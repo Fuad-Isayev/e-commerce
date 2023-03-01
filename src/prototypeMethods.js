@@ -26,6 +26,26 @@ function sortKeys(keys, key) {
     return renamed.replace('.', '');
 }
 
+Vue.prototype.$unit = function(name, value){
+     if (name === "ram" || name === "storage") {
+    if (!isNaN(value) && value !== null && value !== '') {
+      if (value < 1024) {
+        return value + " GB";
+      } else {
+        return (value / 1024) + " TB";
+      }
+    }
+  } else if (name === "sizes") {
+    if (isNaN(value) && value !== null && value !== '') {
+      return value.toUpperCase();
+    } else {
+      return value;
+    }
+  } else {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+}
+
 Vue.prototype.$reorderByElement = function (obj, element,element2) {
     let keys = Object.keys(obj)
     keys = keys.map(key => {
@@ -54,4 +74,8 @@ Vue.prototype.$reorderByUrl = async function(url, from, to) {
     await axios.put(url, {})
 
     await axios.put(url,reorderedObj)
+}
+
+Vue.prototype.$query = function(text) {
+    return text.toLowerCase().replace(' ', '-');
 }

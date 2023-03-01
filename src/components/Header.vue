@@ -10,9 +10,9 @@
                     <NavigationDrawer class="d-inline" />
                 </v-col>
                 <v-col cols="4" md="6">
-                    <v-autocomplete v-if="!isMobile" v-model="model" :items="items" :loading="isLoading"
-                        :search-input.sync="search" chips clearable hide-details hide-selected item-text="name"
-                        item-value="id" label="Search for a product..." solo>
+                    <v-autocomplete ref="autocomplete" v-if="!isMobile" v-model="model" :items="items" :menu-props="menu"
+                        :search-input.sync="search" :loading="isLoading" item-text="name" item-value="id"
+                        label="Search for a product..." solo>
                         <template v-slot:no-data>
                             <v-list-item>
                                 <v-icon class="mr-2">mdi-magnify</v-icon>
@@ -22,16 +22,25 @@
                                 </v-list-item-title>
                             </v-list-item>
                         </template>
+                        <template v-slot:item="{ item }">
+                            <v-list-item @click="selectProduct(item)">
+                                <v-list-item-avatar tile>
+                                    <v-img :src="item.imgURL.original + '/tr:w-100'"></v-img>
+                                </v-list-item-avatar>
+                                <v-list-item-content>
+                                    <v-list-item-title>
+                                        {{ item.name }}
+                                    </v-list-item-title>
+                                </v-list-item-content>
+                            </v-list-item>
+                        </template>
                     </v-autocomplete>
-                    <v-avatar v-if="isMobile" rounded class="ml-2" width='130px'>
+                    <v-avatar v-if="isMobile" rounded class="ml-n2" width='130px'>
                         <v-img class="logo" @click="goHome()" src="../assets/logo.png">
                         </v-img>
                     </v-avatar>
                 </v-col>
                 <v-col cols="6" md="3" class="d-flex align-items-center justify-end">
-                    <!-- <v-btn class="mr-1 ml-2">
-                        <v-icon>mdi-magnify</v-icon>
-                    </v-btn> -->
                     <v-btn v-if="!isMobile" class="mr-1 ml-2">
                         <v-icon>mdi-account-outline</v-icon>
                     </v-btn>
@@ -48,8 +57,8 @@
                 </v-col>
             </v-row>
             <v-row v-if="isMobile">
-                <v-autocomplete v-model="model" :items="items" :loading="isLoading" :search-input.sync="search" chips
-                    clearable hide-details hide-selected item-text="name" item-value="id"
+                <v-autocomplete class="px-3" ref="autocomplete" v-model="model" :items="items" :menu-props="menu"
+                    :search-input.sync="search" :loading="isLoading" item-text="name" item-value="id"
                     label="Search for a product..." solo>
                     <template v-slot:no-data>
                         <v-list-item>
@@ -60,15 +69,27 @@
                             </v-list-item-title>
                         </v-list-item>
                     </template>
+                    <template v-slot:item="{ item }">
+                        <v-list-item @click="selectProduct(item)">
+                            <v-list-item-avatar tile>
+                                <v-img :src="item.imgURL.original + '/tr:w-100'"></v-img>
+                            </v-list-item-avatar>
+                            <v-list-item-content>
+                                <v-list-item-title>
+                                    {{ item.name }}
+                                </v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                    </template>
                 </v-autocomplete>
             </v-row>
         </v-container>
-        <v-divider></v-divider>
     </div>
 </template>
 
 <script>
 import NavigationDrawer from './NavigationDrawer.vue';
+import firebase from "../../firebase";
 
 export default {
     name: "Header",
@@ -81,12 +102,27 @@ export default {
             items: [],
             isLoading: false,
             search: '',
+            menu: {
+                closeOnClick: true,
+                closeOnContentClick: true,
+                disableKeys: true,
+                openOnClick: false,
+                maxHeight: 304,
+                offsetY: true,
+                offsetOverflow: true,
+                transition: false
+            }
         }
     },
     methods: {
         goHome() {
-            if (this.$route.path !== "/") {
+            if (this.$route.path !== "/" || Object.keys(this.$route.query).length > 0) {
                 this.$router.push("/");
+            }
+        },
+        selectProduct(item) {
+            if (this.$route.params.id !== item.id) {
+                this.$router.push(`/products/${item.id}`);
             }
         }
     },
@@ -98,7 +134,15 @@ export default {
             return this.$store.state.cartItemsCount;
         },
         wishlistItemsCount() {
-            return this.$store.state.wishlistItemsCount;
+            return this.$store.getters.wishlistItemsCount;
+        }
+    },
+    watch: {
+        async search(val) {
+            if (val && val.length > 1) {
+                const resp = await firebase.get(`/items.json?orderBy="name"&startAt="${val.charAt(0).toUpperCase() + val.slice(1)}"`)
+                this.items = Object.values(resp.data);
+            }
         }
     }
 }

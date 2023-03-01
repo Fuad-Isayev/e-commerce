@@ -1,22 +1,30 @@
 <template>
     <div>
         <v-container ref="main">
-            <p> {{ touches }}</p>
+            <v-row>
+                <v-col cols="2">
+                    <router-link class="text-decoration-none text-sm-h5 font-weight-medium" to="/admin">
+                        <v-btn color="primary">
+                            <v-icon>mdi-chevron-left</v-icon> Admin panel
+                        </v-btn>
+                    </router-link>
+                </v-col>
+            </v-row>
             <v-row>
                 <v-col cols="12" class="d-flex justify-space-between">
                     <strong>CATEGORY: </strong>
                     <v-menu bottom offset-y>
                         <template v-slot:activator="{ on, attrs }">
                             <v-btn :small="isMobile" color="primary" dark v-bind="attrs" v-on="on">
-                                {{ subcategory? subcategory.name : "Choose Category" }}
+                                {{ subcategory ? subcategory.name : "Choose Category" }}
                             </v-btn>
                         </template>
                         <v-list height="300" class="overflow-auto">
                             <div v-for="(cat, index) in categories" :key="index">
                                 <strong>{{ cat.name }}</strong>
                                 <v-list-item-group>
-                                    <v-list-item v-for="(subcategory, index) in cat.subcategories" :key="index"
-                                        @click="chooseCategory(subcategory)">
+                                    <v-list-item v-for="(subcategory, index) in filterSubcategories(cat)" :key="index"
+                                        @click="chooseSubcategory(subcategory)">
                                         <v-list-item-title>{{ subcategory.name }}</v-list-item-title>
                                     </v-list-item>
                                 </v-list-item-group>
@@ -45,11 +53,11 @@
             </v-row>
             <div ref="container">
                 <v-row ref='draggable' :id="spec.id" :draggable="allowDrag"
-                    class="mt-5 text-center text-body-2 text-sm-body-1 justify-center"
-                    v-for="(spec, i) in specifications" :key="i">
+                    class="mt-5 text-center text-body-2 text-sm-body-1 justify-center" v-for="(spec, i) in specifications"
+                    :key="i">
                     <v-col v-if="showEdit" cols="1" class="px-0">
-                        <v-icon @touchstart="allowDrag = true" @mouseover="allowDrag = true"
-                            @mouseleave="allowDrag = false" class="reorder-button">
+                        <v-icon @touchstart="allowDrag = true" @mouseover="allowDrag = true" @mouseleave="allowDrag = false"
+                            class="reorder-button">
                             mdi-menu
                         </v-icon>
                     </v-col>
@@ -65,15 +73,14 @@
                                 {{ spec.values ? spec.values[0] + " (+" + (spec.values.length - 1) + " more)" : "N/A" }}
                             </span>
                             <span>
-                                <v-icon v-if="spec.values && spec.values.length > 1"
-                                    :class="{ rotate: showValues === i }"
+                                <v-icon v-if="spec.values && spec.values.length > 1" :class="{ rotate: showValues === i }"
                                     @click="showValues = showValues === i ? null : i">
                                     mdi-chevron-down
                                 </v-icon>
                             </span>
                         </div>
                         <div class="values" v-if="showValues === i">
-                            <p v-for="value, i in spec.values" :key="i"> {{ value }}</p>
+                            <p v-for="value, i in spec.values" :key="i"> {{ value.name || value }}</p>
                         </div>
                     </v-col>
                     <v-col cols="1" class="px-0">
@@ -139,7 +146,6 @@ export default {
             editingSpecification: null,
             afterElementId: '',
             allowDrag: false,
-            touches: 0,
         }
     },
     mounted() {
@@ -147,29 +153,24 @@ export default {
         container.addEventListener('dragover', e => {
             e.preventDefault();
             const afterElement = this.getDragAfterElement(e.clientY);
-            // const draggable = document.querySelector('.dragging');
-            // if (afterElement == null) {
-            //     container.appendChild(draggable)
-            // } else {
-            //     container.insertBefore(draggable, afterElement)
-            // }
             this.afterElementId = afterElement?.id || null;
         })
     },
     computed: {
         categories() {
             return this.$store.state.categories;
+        },
+        subcategories() {
+            return this.$store.state.subcategories;
         }
     },
     watch: {
-        categories(val) {
+        subcategories(val) {
             if (this.subcategory) {
-                this.subcategory = val[this.subcategory.categoryId].subcategories[this.subcategory.id];
+                this.subcategory = val.find(subcat => subcat.id === this.subcategory.id);
+                console.log("SubcaTEGORY CHANGED")
                 this.getSpecifications(this.subcategory);
             }
-        },
-        touches(val) {
-            console.log(val)
         }
     },
     methods: {
@@ -181,8 +182,7 @@ export default {
             draggables.forEach(draggable => {
                 let box = null;
                 draggable.addEventListener('touchstart', (e) => {
-                    if (this.allowDrag) {
-                        this.touches = e.targetTouches.length;
+                    if (this.allowDrag && e.touches.length <= 1) {
                         console.log(e);
                         clone = draggable.cloneNode(true);
                         this.$refs.main.appendChild(clone);
@@ -191,16 +191,16 @@ export default {
                     }
                 })
                 draggable.addEventListener('touchmove', e => {
-                    if (this.allowDrag) {
+                    if (this.allowDrag && e.touches.length <= 1) {
                         e.preventDefault();
                         if (e.targetTouches[0].clientY > window.innerHeight - 10) {
                             window.scrollBy(0, 1);
                             offset = window.scrollY;
                             // console.log('ofset', offset);
                         }
-                        // else {
-                        clone.style.transform = "translate(0, " + (e.targetTouches[0].clientY - box.y - 24 + offset) + "px)";
-                        // }
+                        else {
+                            clone.style.transform = "translate(0, " + (e.targetTouches[0].clientY - box.y - 24 + offset) + "px)";
+                        }
                         // console.log(e.targetTouches[0].clientY, ' and ', box.y, ' and ', clone.style.transform, ' offset ', window.scrollY);
                         draggable.classList.add('dragging');
                         clone.style.opacity = 1;
@@ -260,16 +260,16 @@ export default {
                 }
             }, { offset: Number.NEGATIVE_INFINITY }).element
         },
-        chooseCategory(subcat) {
+        chooseSubcategory(subcat) {
             this.subcategory = subcat;
             this.getSpecifications(subcat);
             this.$nextTick(() => { this.dragListen() });
             this.$nextTick(() => { this.touchListen() });
         },
-        getSpecifications(cat) {
-            if (cat.specifications) {
-                this.specifications = Object.keys(cat.specifications).map((key) => {
-                    return { ...cat.specifications[key], id: key }
+        getSpecifications(subcat) {
+            if (subcat.specifications) {
+                this.specifications = Object.keys(subcat.specifications).map((key) => {
+                    return { ...subcat.specifications[key], id: key }
                 })
             } else {
                 this.specifications = [];
@@ -288,10 +288,13 @@ export default {
                 denyButtonText: `Yes`,
             }).then(async (result) => {
                 if (result.isDenied) {
-                    await firebase.delete(`/categories/${subcat.categoryId}/subcategories/${subcat.id}/specifications/${spec.id}.json`);
-                    this.$store.dispatch('getCategories');
+                    await firebase.delete(`/subcategories/${subcat.id}/specifications/${spec.id}.json`);
+                    this.$store.dispatch('getSubcategories');
                 }
             })
+        },
+        filterSubcategories(category) {
+            return this.subcategories.filter(subcat => subcat.categoryID === category.id)
         }
     }
 }

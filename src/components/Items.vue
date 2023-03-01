@@ -3,8 +3,7 @@
         <v-hover v-if="shop" v-slot:default="{ hover }">
             <v-card flat outlined tile class="" max-width="500">
                 <div>
-                    <v-img contain :src=item.imgURL.resized :max-width="isMobile ? '100%' : '290.25px'"
-                        :max-height="isMobile ? '100%' : '290.25px'">
+                    <v-img class="py-2" contain :src=item.imgURL.resized max-width="100%" max-height="100%">
                     </v-img>
                 </div>
                 <v-card-title class="font-weight-bold text-h6">
@@ -23,8 +22,8 @@
                                     <v-icon>mdi-cart-outline</v-icon>
                                     Buy
                                 </v-btn>
-                                <v-btn @click="addToWishlist(item)" fab :small="!isMobile" :x-small="isMobile"
-                                    color="white" class="ml-2">
+                                <v-btn @click="addToWishlist(item)" fab :small="!isMobile" :x-small="isMobile" color="white"
+                                    class="ml-2">
                                     <v-icon v-if="!item.inWishlist" color="black">mdi-heart-outline</v-icon>
                                     <v-icon v-if="item.inWishlist" color="#b20219">mdi-heart</v-icon>
                                 </v-btn>
@@ -39,9 +38,8 @@
             </v-card>
         </v-hover>
         <v-card v-if="admin" class="mx-auto my-5 hover py-5" max-width="500">
-            <div style="height: 222.8px">
-                <v-img :max-width="isMobile ? '100%' : '290.25px'" :max-height="isMobile ? '100%' : '290.25px'"
-                    :src=item.imgURL.resized>
+            <div>
+                <v-img contain max-width="100%" max-height="100%" :src=item.imgURL.resized>
                 </v-img>
             </div>
             <v-card-title class="font-weight-bold text-h6">

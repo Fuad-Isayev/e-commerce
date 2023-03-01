@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import firebase from "../firebase";
+import router from "./router";
 
 Vue.use(Vuex);
 
@@ -8,47 +9,148 @@ const options = {
     state: {
         screenWidth: window.innerWidth,
         categories: [],
+        subcategories: [],
         items: [],
         cartItems: {},
         wishlistItems: {},
         cartItemsCount: 0,
         cartTotalPrice: 0,
-        wishlistItemsCount: 0,
+        selectedItemID: '',
+        filteredItems: [],
+        selectedSubcategory: null,
+        filterOptions: {},
+        queryOptions: {},
     },
     getters: {
         isMobile(state) {
-             return state.screenWidth < 1264
+             return state.screenWidth < 1264;
+        },
+        wishlistItemsCount(state) {
+            return Object.keys(state.wishlistItems).length;
+        },
+        selectedFilterOptions(state) {
+            const query1 = router.history.current.query;
+            let query = state.queryOptions;
+            query = {...query,...query1};
+            const options = Object.keys(state.filterOptions);
+            const selectedOptions = Object.keys(query).filter(q => options.some(o => o === q));
+            return selectedOptions.reduce((acc, current) => {
+                    return {...acc, [current]: query[current] ? query[current].split(',') : []}
+            }, {});
+        }
+    },
+    mutations: {
+        selectItem(state, payload) {
+            state.selectedItemID = payload;
+        },
+        sortByPriceAscending(state) {
+            state.items.sort((a,b) => a.price - b.price);
+            state.filteredItems.sort((a,b) => a.price - b.price);
+        },
+        sortByPriceDescending(state) {
+            state.items.sort((a,b) => b.price - a.price);
+            state.filteredItems.sort((a,b) => b.price - a.price);
+        },
+        filterItems(state, payload) {
+            if(payload.subcategory) {
+                let subcategory = state.subcategories.find(subcat => subcat.query === payload.subcategory);
+                state.filteredItems = state.items.filter(i => i.subcategoryID === subcategory.id)
+            }
+            if(payload.filter) {
+                state.filteredItems = state.filteredItems.filter((item) => {
+                    return Object.keys(payload.filter).every((key) => {
+                        const filterValue = payload.filter[key];
+                        const itemValue = item.specifications[key];
+                        console.log('filterValue, itemValue ', filterValue, itemValue)
+                        if (filterValue.length > 0) {
+                            if (Array.isArray(filterValue)) {
+                                if(key === "color"){
+                                    return filterValue.some((value) => itemValue.map((val) => val.hex)?.includes(value) || itemValue?.includes(value));
+                                }else{
+                                    return filterValue.some((value) => itemValue?.includes(value)); 
+                                    }
+                                } else {
+                                return itemValue === filterValue;
+                            }
+                        } else {
+                            return true
+                        }
+                    });
+                });
+            }
+        },
+        getFilterOptions(state){
+            let options = {};
+            state.filteredItems.forEach((i) => {
+                Object.keys(i.specifications).forEach((spec) => {
+                    if (!options[spec]) {
+                        options[spec] = []
+                    }
+                    if (typeof i.specifications[spec] === "string") {
+                        if (!options[spec].includes(i.specifications[spec])) {
+                            options[spec].push(i.specifications[spec])
+                        }
+                    } else {
+                        i.specifications[spec].forEach((value) => {
+                            if (!options[spec].includes(value)) {
+                                if(spec === "color" && typeof value !== "string") {
+                                    options[spec].push(value.hex);
+                                }
+                                else{
+                                    options[spec].push(value)
+                                }
+                            }
+                        })
+                    }
+                })
+            })
+            state.filterOptions = options;
+        },
+        updateQueryOptions(state,payload) {
+            state.queryOptions = payload
         }
     },
     actions: {
-        async getCategories({state}) {
+        async getCategories({state}) {  
             const response = await firebase.get('/categories.json');
-            if (response.data) {
-                let keys = Object.keys(response.data);
-                let subkeys = keys.reduce((a, key) => ({...a, [key] :
-                    Object.keys(response.data[key].subcategories)}), {}
-                );
+            let keys = Object.keys(response.data);
+            state.categories = keys.map(key => {
+                return {...response.data[key], id: key}
+            });
+        },
+        async getSubcategories({state, commit, getters}){
+            const response = await firebase.get('/subcategories.json');
+            let keys =  Object.keys(response.data);
+            state.subcategories = keys.map(key => {
+                return {...response.data[key], id: key}
+            });
 
-                let categories = keys.reduce((a, key) => 
-                    ({ ...a, [key]: { ...response.data[key], id: key, 
-                        subcategories : subkeys[key].reduce((b, subkey) => 
-                            ({...b, [subkey]: {...response.data[key].subcategories[subkey],
-                                id:subkey, categoryId: key}
-                            }), {})}
-                    }), {});
-                state.categories = categories;
-            } else {
-                state.categories = [];
+            if(router.history.current.params.subcategory) {
+                commit('filterItems', { subcategory: router.history.current.params.subcategory})
+                commit('getFilterOptions');
+            }
+
+            const filter = getters.selectedFilterOptions;
+            if(Object.values(filter).some((f) => f[0] && f[0].length > 0)) {
+                commit('filterItems', { filter: filter})
             }
         },
-        async loadItems({state}, payload) {
-            const response = await firebase.get(`/items.json?orderBy="subcategoryID"&equalTo="${payload.subcat}"`);
+        async loadAllItems({state, commit}){
+            const response = await firebase.get('/items.json');
             if (response.data) {
                 let keys = Object.keys(response.data);
                 let items = keys.map(key => {
                     return { ...response.data[key], id: key };
                 })
-                state.items = items;
+                state.items = Object.values(items);
+                if(router.history.current.query.sbp === "PRICE_ASCEND"){
+                    commit('sortByPriceAscending')
+                }
+                if(router.history.current.query.sbp === "PRICE_DESCEND"){
+                    commit('sortByPriceDescending')
+                }
+
+                
             } else {
                 state.items = [];
             }
@@ -79,7 +181,6 @@ const options = {
             const response = await firebase.get('/wishlist.json');
             if(response.data) {
                 state.wishlistItems = response.data;
-                state.wishlistItemsCount = Object.keys(state.wishlistItems).length;
             } else {
                 state.wishlistItems = {};
             }
@@ -107,15 +208,18 @@ const options = {
             } else {
                 await firebase.put(`/wishlist/${item.id}.json`, item);
                 await firebase.put(`/items/${item.id}/inWishlist.json`, true);
-                state.wishlistItemsCount += 1;
                 dispatch('loadWishlistItems');
+                const selectedItem = state.items.find(i => i.id === item.id);
+                selectedItem.inWishlist = true;
+                
             }
         },
-        async deleteFromWishlist({state, dispatch},id){
+        async deleteFromWishlist({ state, dispatch},id){
             await firebase.delete(`/wishlist/${id}.json`);
             await firebase.put(`/items/${id}/inWishlist.json`, false);
-            state.wishlistItemsCount -= 1;
             dispatch('loadWishlistItems');
+            const selectedItem = state.items.find(i => i.id === id);
+            selectedItem.inWishlist = false;
         }
     }
 }
