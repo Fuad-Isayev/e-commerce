@@ -1,10 +1,6 @@
 <template>
     <v-container>
         <v-row v-for="item, i in items" :key="i" class="align-center text-center">
-            <!-- <v-col cols="6" sm="4" class="py-0" :class="!isMobile ? i % 3 ? 'pl-0 pr-1 ml-n1' : 'pl-0 pr-1' : ''"
-                                    v-for="item, i in items" :key="item.id">
-                                    <Items shop :item="item" />
-                                </v-col> -->
             <v-col cols="2">
                 <v-img :max-width="isMobile ? 50 : 100" :src="item.imgURL.resized"></v-img>
             </v-col>
@@ -46,3 +42,9 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.v-btn.v-size--small {
+    font-size: 0.6rem;
+}
+</style>
