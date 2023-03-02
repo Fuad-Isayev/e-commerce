@@ -1,15 +1,16 @@
 <template>
     <div>
         <v-hover v-if="shop" v-slot:default="{ hover }">
-            <v-card flat outlined tile class="" max-width="500">
-                <div>
-                    <v-img class="py-2" contain :src=item.imgURL.resized max-width="100%" max-height="100%">
+            <v-card :style="!isMobile ? 'height: 400px' : 'height: 255px'" flat outlined tile>
+                <div :style="!isMobile ? 'height: 265px' : 'height: 145px'">
+                    <v-img class="py-2" contain :src=item.imgURL.resized max-width="80%" max-height="100%">
                     </v-img>
                 </div>
                 <v-card-title class="font-weight-bold text-h6">
                     ${{ item.price }}
                 </v-card-title>
-                <v-card-title class="font-weight-bold text-h6 justify-space-between">
+                <v-card-title :style="!isMobile ? 'max-height: 64px' : 'max-height: 40px'"
+                    class="font-weight-bold text-sm-h6 justify-space-between py-0 line-clamp-2">
                     {{ item.name }}
                 </v-card-title>
                 <v-expand-transition>
@@ -111,5 +112,17 @@ export default {
 
 .about-button {
     bottom: -100px;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    word-break: keep-all !important;
+    margin-top: auto !important;
+    line-height: 20px;
 }
 </style>

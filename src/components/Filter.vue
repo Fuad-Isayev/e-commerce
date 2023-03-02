@@ -31,13 +31,13 @@
                 </v-chip-group>
                 <v-chip-group v-else column filter multiple active-class="blue white--text" class="ml-2"
                     v-model="selectedValues[i]">
-                    <v-chip :class="{ pill: value.length > 4 }" v-for="value, index in spec" :key="index" :value="value">
-                        {{ value.charAt(0).toUpperCase() + value.slice(1).toLowerCase() }}</v-chip>
+                    <v-chip :class="{ pill: value.length > 4 }" class="text-capitalize" v-for="value, index in spec"
+                        :key="index" :value="value">
+                        {{ value }}</v-chip>
                 </v-chip-group>
             </v-card>
-
         </v-card>
-        <v-card outlined class="text-center py-3">
+        <v-card v-if="isMobile" outlined class="text-center py-3">
             <v-btn @click="$emit('toggleShowFilter')" color=" success" center> Show ({{ items.length }})</v-btn>
         </v-card>
     </div>
@@ -69,7 +69,7 @@ export default {
         },
         queryValues() {
             return this.$store.getters.selectedFilterOptions;
-        },
+        }
     },
     watch: {
         selectedValues: {

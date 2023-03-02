@@ -1,23 +1,23 @@
 <template>
     <div>
         <v-container>
-            <v-card>
-                <Sort @toggleShowFilter="toggleShowFilter" />
-                <v-row>
-                    <v-col v-show="!isMobile || showFilter" cols="12" sm="3" class="py-0 pr-2 mt-n3">
-                        <FilterMenu @toggleShowFilter="toggleShowFilter" :items="givenItems || items" />
-                    </v-col>
-                    <v-col cols="12" sm="9" :class="isMobile ? '' : 'mt-n3'">
-                        <v-row>
-                            <v-col cols="6" sm="4" class="py-0"
-                                :class="!isMobile ? i % 3 ? 'pl-0 pr-1 ml-n1' : 'pl-0 pr-1' : ''"
-                                v-for="item, i in givenItems" :key="item.id">
-                                <Items shop :item="item" @toggleWishlist="item.inWishlist = !item.inWishlist" />
-                            </v-col>
-                        </v-row>
-                    </v-col>
-                </v-row>
-            </v-card>
+            <Sort @toggleShowFilter="toggleShowFilter" />
+            <v-row>
+                <v-col v-show="!isMobile || showFilter" cols="12" sm="3" class="py-0 pr-2 mt-n3">
+                    <FilterMenu @toggleShowFilter="toggleShowFilter" :items="givenItems || items" />
+                </v-col>
+                <v-col cols="12" sm="9" :class="isMobile ? '' : 'mt-n3'">
+                    <v-row :style="!isMobile ? 'height: 1100px' : 'height: 785px'">
+                        <v-col cols="6" sm="4" class="py-0"
+                            :class="!isMobile ? i % 3 ? 'pl-0 pr-1 ml-n1' : 'pl-0 pr-1' : ''"
+                            v-for="(item, i) in displayedItems" :key="item.id">
+                            <Items shop :item="item" @toggleWishlist="item.inWishlist = !item.inWishlist" />
+                        </v-col>
+                        <v-pagination v-model="currentPage" :total-visible="5" :items-per-page="itemsPerPage"
+                            @input="updateDisplayedItems" :length="totalPages" />
+                    </v-row>
+                </v-col>
+            </v-row>
         </v-container>
     </div>
 </template>
@@ -35,24 +35,51 @@ export default {
         FilterMenu,
     },
     props: {
-        givenItems: Array,
+        givenItems: {
+            type: Array,
+            required: true
+        },
     },
     data() {
         return {
             showFilter: false,
+            currentPage: 1,
+            itemsPerPage: 12,
+            displayedItems: []
         }
+    },
+    mounted() {
+        this.updateDisplayedItems();
     },
     methods: {
         toggleShowFilter() {
             this.showFilter = !this.showFilter;
         },
-
+        updateDisplayedItems() {
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            this.displayedItems = this.givenItems.slice(start, end);
+        }
     },
     computed: {
         isMobile() {
             return this.$store.getters.isMobile;
+        },
+        totalItems() {
+            return this.givenItems.length;
+        },
+        totalPages() {
+            return Math.ceil(this.totalItems / this.itemsPerPage);
         }
     },
+    watch: {
+        givenItems: {
+            immediate: true,
+            handler() {
+                this.updateDisplayedItems();
+            }
+        }
+    }
 }
 </script>
 

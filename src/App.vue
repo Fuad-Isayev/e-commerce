@@ -42,4 +42,14 @@ strong {
   display: flex;
   align-items: center;
 }
+
+.truncate-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: calc(2 * var(--line-height-base));
+  word-break: keep-all;
+}
 </style>

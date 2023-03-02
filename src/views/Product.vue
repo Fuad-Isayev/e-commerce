@@ -4,18 +4,18 @@
             <v-breadcrumbs divider=">" class="pl-0" :items="crumbs">
             </v-breadcrumbs>
             <v-row>
-                <v-col cols="6" class="border">
+                <v-col cols="12" sm="6" class="border">
                     <div class="d-flex justify-center">
-                        <v-img max-width="50%" :src="item.imgURL?.original">
+                        <v-img max-width="80%" :src="item.imgURL?.original">
                         </v-img>
                     </div>
                 </v-col>
-                <v-col cols="6" class="text-center border">
+                <v-col cols="12" sm="6" class="text-center border">
                     <h5 class="my-4"> {{ item.name }}</h5>
                     <h5 class="my-4"> ${{ item.price }}</h5>
                     <v-row class="align-center" v-for="spec, i in item.specifications" :key="i">
                         <v-col v-if="Array.isArray(spec)" class="text-start" cols="6">
-                            <h6 class="m-0">{{ i.charAt(0).toUpperCase() + i.slice(1) }}</h6>
+                            <h6 class="m-0 text-capitalize">{{ i }}</h6>
                         </v-col>
                         <v-col v-if="Array.isArray(spec)" cols="6">
                             <v-chip-group v-model="selectedValues[i]" v-if="i === 'color'" column :multiple="spec.multiple">
@@ -28,18 +28,19 @@
                             </v-chip-group>
                             <v-chip-group v-model="selectedValues[i]" v-else column :multiple="spec.multiple"
                                 active-class="blue white--text" class="ml-2">
-                                <v-chip v-for="value in spec" :key="value" :value="value" :small="isMobile">
+                                <v-chip :class="{ pill: i.length > 4 }" v-for="value in spec" :key="value" :value="value"
+                                    :small="isMobile">
                                     {{ $unit(i, value) }}</v-chip>
                             </v-chip-group>
                         </v-col>
                     </v-row>
                     <v-row>
-                        <v-col cols="10" class="pr-0">
-                            <v-btn @click="addToCart(item)" width="100%" large color="success">Add to
+                        <v-col cols="9" sm="10" class="pr-0 ">
+                            <v-btn @click="addToCart(item)" block :large="!isMobile" color="success">Add to
                                 Cart</v-btn>
                         </v-col>
-                        <v-col cols="2">
-                            <v-btn large>
+                        <v-col cols="3" sm="2" class="px-0">
+                            <v-btn :large="!isMobile">
                                 <v-icon>
                                     mdi-heart-outline
                                 </v-icon>
@@ -52,7 +53,7 @@
                 <h5 class="py-5 text-center border-bottom">Specifications</h5>
                 <v-row class="align-center" v-for="spec, i in item.specifications" :key="i">
                     <v-col v-if="(!Array.isArray(spec))" class="text-center" cols="6">
-                        <h6 class="m-0">{{ i.charAt(0).toUpperCase() + i.slice(1) }}</h6>
+                        <h6 class="m-0 text-capitalize">{{ i }}</h6>
                     </v-col>
                     <v-col cols="6" v-if="(!Array.isArray(spec))">
                         <span>{{ $unit(i, spec) }}</span>
@@ -81,7 +82,7 @@ export default {
         if (this.items.length > 0) {
             this.item = this.items.find(i => i.id === this.id);
         }
-        this.category = this.categories?.find(cat => cat.id === this.item.categoryID).query;
+        this.category = this.categories?.find(cat => cat.id === this.item.categoryID)?.query;
         this.subcategory = this.subcategories?.find(subcat => subcat.id === this.item.subcategoryID).query;
     },
     computed: {

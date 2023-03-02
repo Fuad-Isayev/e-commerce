@@ -5,7 +5,8 @@
                 <v-img :max-width="isMobile ? 50 : 100" :src="item.imgURL.resized"></v-img>
             </v-col>
             <v-col cols="4">
-                <p>{{ item.name }}</p>
+                <p class="line-height-1 text-sm-body-1 text-caption truncate-text">{{ item.name }}
+                </p>
             </v-col>
             <v-col cols="4">
                 <v-btn @click="addToCart(item.id)" class="white--text" color="green" :small="isMobile">
@@ -45,6 +46,6 @@ export default {
 
 <style scoped>
 .v-btn.v-size--small {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
 }
 </style>
