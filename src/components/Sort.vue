@@ -14,14 +14,14 @@
             <v-toolbar flat outlined>
             </v-toolbar>
         </v-col>
-        <v-col cols="12" sm="3" class="mt-n6 pl-0 pr-1 ml-n1">
+        <v-col cols="12" sm="3" class="mt-n6 pl-1 pr-2 ml-0">
             <v-toolbar flat outlined>
                 <v-select v-model="selectedOption" @change="changeRoute" class="pt-6" solo dense :items="sortOptions"
                     label="Sort by:">
                 </v-select>
             </v-toolbar>
         </v-col>
-        <v-col cols="12" sm="3" class="mt-n6 pl-0 pr-1 ml-n1">
+        <v-col cols="12" sm="3" class="mt-n6 pl-0 pr-3 ml-0">
             <v-toolbar flat outlined>
                 <strong>SHOW: <span>12</span></strong>
                 <v-spacer></v-spacer>
@@ -33,12 +33,12 @@
         </v-col>
     </v-row>
     <v-row v-else class="align-center my-0 text-center ">
-        <v-col class="ms-3">
+        <v-col class="ms-0 pe-2">
             <v-btn class="text-caption font-weight-bold" block @click="$emit('toggleShowFilter')">
                 FILTER
             </v-btn>
         </v-col>
-        <v-col class="me-3 sort">
+        <v-col class="me-0 ps-2 sort">
             <v-btn class="text-caption font-weight-bold" block @click="showSortOptions = !showSortOptions">
                 {{ sortText || 'Sort By' }}
             </v-btn>

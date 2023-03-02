@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-hover v-if="shop" v-slot:default="{ hover }">
-            <v-card :style="!isMobile ? 'height: 400px' : 'height: 255px'" flat outlined tile>
+            <v-card class="mt-2" :style="!isMobile ? 'height: 400px' : 'height: 255px'" flat outlined tile>
                 <div :style="!isMobile ? 'height: 265px' : 'height: 145px'">
                     <v-img class="py-2" contain :src=item.imgURL.resized max-width="80%" max-height="100%">
                     </v-img>
@@ -16,7 +16,7 @@
                 <v-expand-transition>
                     <div v-if="hover"
                         class=" d-flex align-ceter text-center transition-fast-in-fast-out v-card--reveal white-text"
-                        style="height: 100%">
+                        :style="!isMobile ? 'height: 400px' : 'height: 255px'">
                         <div class="">
                             <v-col cols='12'>
                                 <v-btn @click="addToCart(item)" :small="isMobile" rounded color="white">
@@ -111,7 +111,7 @@ export default {
 }
 
 .about-button {
-    bottom: -100px;
+    bottom: -50px;
 }
 
 .line-clamp-2 {

@@ -6,11 +6,12 @@
                 <v-col v-show="!isMobile || showFilter" cols="12" sm="3" class="py-0 pr-2 mt-n3">
                     <FilterMenu @toggleShowFilter="toggleShowFilter" :items="givenItems || items" />
                 </v-col>
-                <v-col cols="12" sm="9" :class="isMobile ? '' : 'mt-n3'">
-                    <v-row :style="!isMobile ? 'height: 1100px' : 'height: 785px'">
-                        <v-col cols="6" sm="4" class="py-0"
-                            :class="!isMobile ? i % 3 ? 'pl-0 pr-1 ml-n1' : 'pl-0 pr-1' : ''"
-                            v-for="(item, i) in displayedItems" :key="item.id">
+                <v-col cols="12" sm="9" :class="isMobile ? 'mt-n6' : 'mt-n3'">
+                    <v-row :class="isMobile ? 'px-2' : ''" :style="!isMobile ? 'height: 1100px' : 'height: 785px'">
+                        <v-col cols="6" sm="4" class="py-0" :class="!isMobile ? i % 3 ?
+                            'pl-2 pr-1 ml-n1' :
+                            'pl-0 pr-1'/*first elements */
+                            : 'px-1'" v-for="(item, i) in displayedItems" :key="item.id">
                             <Items shop :item="item" @toggleWishlist="item.inWishlist = !item.inWishlist" />
                         </v-col>
                         <v-pagination v-model="currentPage" :total-visible="5" :items-per-page="itemsPerPage"
