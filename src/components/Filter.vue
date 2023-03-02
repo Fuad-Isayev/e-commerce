@@ -13,7 +13,7 @@
                 <v-text-field :placeholder="'$ ' + range[1]" filled rounded dense class="mx-2">
                 </v-text-field>
             </v-toolbar>
-            <v-range-slider v-model="range" max="200" min="75"></v-range-slider>
+            <v-range-slider class="px-4" v-model="range" max="200" min="75"></v-range-slider>
             <v-card v-for="spec, i in filterOptions" :key="i" flat outlined>
                 <v-toolbar flat>
                     <v-icon color="black" class="mr-2">mdi-chevron-down</v-icon>
@@ -21,15 +21,15 @@
                     <v-spacer></v-spacer>
                     <v-icon small color="grey">mdi-close</v-icon>
                 </v-toolbar>
-                <v-chip-group v-if="i === 'color'" column multiple v-model="selectedValues[i]">
+                <v-chip-group class="px-4" v-if="i === 'color'" column multiple v-model="selectedValues[i]">
                     <v-chip v-for="(color, index) in spec" :key="index" filter
                         :color="color === 'white' ? 'black' : color === 'gold' ? 'amber' : (color.hex || color)"
                         :outlined="color === 'white'"
                         :text-color="color === 'white' ? 'black' : color === 'yellow' ? 'red' : color === 'gold' ? 'red' : 'white'"
-                        class="ml-2" :value="color">
+                        :value="color">
                     </v-chip>
                 </v-chip-group>
-                <v-chip-group v-else column filter multiple active-class="blue white--text" class="ml-2"
+                <v-chip-group v-else column filter multiple active-class="blue white--text" class=" px-4"
                     v-model="selectedValues[i]">
                     <v-chip :class="{ pill: value.length > 4 }" class="text-capitalize" v-for="value, index in spec"
                         :key="index" :value="value">
