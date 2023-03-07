@@ -45,12 +45,12 @@
                         <v-icon>mdi-account-outline</v-icon>
                     </v-btn>
                     <v-btn @click="$router.push('/wishlist')" class="mr-2 ml-1">
-                        <v-badge color="blue" :content="wishlistItemsCount || '0'">
+                        <v-badge color="#077c8c" :content="wishlistItemsCount || '0'">
                             <v-icon>mdi-heart-outline</v-icon>
                         </v-badge>
                     </v-btn>
                     <v-btn @click="$router.push('/cart')">
-                        <v-badge color="blue" :content="cartItemsCount">
+                        <v-badge color="#077c8c" :content="cartItemsCount">
                             <v-icon>mdi-cart-outline</v-icon>
                         </v-badge>
                     </v-btn>
