@@ -1,19 +1,24 @@
 <template>
     <div>
-        <v-card flat outlined tile>
-            <v-toolbar flat>
-                <v-icon color="black" class="mr-2">mdi-chevron-down</v-icon>
-                <strong>PRICE</strong>
-                <v-spacer></v-spacer>
-                <v-icon small color="grey">mdi-close</v-icon>
-            </v-toolbar>
-            <v-toolbar flat>
-                <v-text-field :placeholder="'$ ' + range[0]" filled rounded dense class="mx-2">
-                </v-text-field>
-                <v-text-field :placeholder="'$ ' + range[1]" filled rounded dense class="mx-2">
-                </v-text-field>
-            </v-toolbar>
-            <v-range-slider class="px-4" v-model="range" max="200" min="75"></v-range-slider>
+        <v-card flat tile>
+            <v-card flat outlined>
+                <v-toolbar flat>
+                    <v-icon color="black" class="mr-2">mdi-chevron-down</v-icon>
+                    <strong>PRICE</strong>
+                    <v-spacer></v-spacer>
+                    <v-icon small color="grey">mdi-close</v-icon>
+                </v-toolbar>
+                <v-toolbar flat>
+                    <v-text-field v-model="rangeText.min" ref="range-0" @blur="handleBlur($event, '0')"
+                        :placeholder="'$ ' + range[0]" filled rounded dense class="mx-2">
+                    </v-text-field>
+                    <v-text-field v-model="rangeText.max" ref="range-1" @blur="handleBlur($event, '1')"
+                        :placeholder="'$ ' + range[1]" filled rounded dense class="mx-2">
+                    </v-text-field>
+                </v-toolbar>
+                <v-range-slider step="0.01" ref="slider" class="px-4" v-model="range" :max="highestItemPrice"
+                    :min="lowestItemPrice"></v-range-slider>
+            </v-card>
             <v-card v-for="spec, i in filterOptions" :key="i" flat outlined>
                 <v-toolbar flat>
                     <v-icon color="black" class="mr-2">mdi-chevron-down</v-icon>
@@ -44,6 +49,7 @@
 </template>
 
 <script>
+import _ from 'lodash';
 
 export default {
     name: "FilterItems",
@@ -52,10 +58,29 @@ export default {
     },
     data() {
         return {
-            range: [75, 200],
+            range: [0, 0],
+            rangeText: {
+                min: 0,
+                max: 0
+            },
             showFilter: false,
             selectedValues: {},
+            filterByPriceDebouncer: null
         }
+    },
+    created() {
+        this.filterByPriceDebouncer = _.debounce((val) => {
+            this.filterByPrice(val)
+        }, 500)
+    },
+    mounted() {
+        this.$store.commit('filterItems', { subcategory: this.selectedSubcategory });
+        this.$store.commit('getFilterOptions');
+        this.$store.commit('getPriceLimits');
+        this.range[0] = this.queryValues.minPrice || this.lowestItemPrice;
+        this.range[1] = this.queryValues.maxPrice || this.highestItemPrice;
+        this.rangeText.min = this.range[0];
+        this.rangeText.max = this.range[1];
     },
     computed: {
         filterOptions() {
@@ -69,9 +94,20 @@ export default {
         },
         queryValues() {
             return this.$store.getters.selectedFilterOptions;
+        },
+        lowestItemPrice() {
+            return this.$store.state.lowestItemPrice;
+        },
+        highestItemPrice() {
+            return this.$store.state.highestItemPrice;
         }
     },
     watch: {
+        range(val) {
+            this.rangeText.min = val[0];
+            this.rangeText.max = val[1];
+            this.filterByPriceDebouncer(val);
+        },
         selectedValues: {
             handler: function (val) {
                 console.log('selected values ', JSON.stringify(val));
@@ -99,21 +135,50 @@ export default {
             deep: true
         },
         queryValues(val) {
-            console.log(JSON.stringify(val), ' query, selected', JSON.stringify(this.selectedValues));
             if (JSON.stringify(val) !== JSON.stringify(this.selectedValues)) {
                 this.selectedValues = val;
             }
-            this.$store.commit('filterItems', { subcategory: this.selectedSubcategory, filter: val });
-        }
+            const { minPrice, maxPrice, ...filter } = val;
+            this.$store.commit('filterItems', {
+                subcategory: this.selectedSubcategory, filter: filter, price: {
+                    min: minPrice ? minPrice[0] : 0, max: maxPrice ? maxPrice[0] : this.highestItemPrice
+                }
+            });
+        },
+        lowestItemPrice(val) {
+            this.range[0] = val;
+            this.$refs.slider.lazyValue[0] = this.queryValues.minPrice || val;
+        },
+        highestItemPrice(val) {
+            this.range[1] = val;
+            this.$refs.slider.lazyValue[1] = this.queryValues.maxPrice || val;
+        },
     },
-    mounted() {
-        this.$store.commit('filterItems', { subcategory: this.selectedSubcategory });
-        this.$store.commit('getFilterOptions');
+    methods: {
+        filterByPrice(val) {
+            let obj = { ...this.$route.query };
+            console.log('val', val);
+            obj.minPrice = val[0].toString();
+            obj.maxPrice = val[1].toString();
+            if (JSON.stringify(this.$route.query) !== JSON.stringify(obj)) {
+                console.log('query pushed ', JSON.stringify(obj), JSON.stringify(this.$route.query));
+                this.$router.push({ query: obj });
+            }
+            this.$store.commit('updateQueryOptions', obj);
+        },
+        handleBlur(event, index) {
+            const value = Number(event.target.value);
+            if (value < this.lowestItemPrice && Number(index) === 0) {
+                this.$set(this.range, 0, this.lowestItemPrice)
+            } else if (value > this.highestItemPrice && Number(index) === 1) {
+                this.$set(this.range, 1, this.highestItemPrice)
+            } else {
+                this.$set(this.range, Number(index), value)
+            }
+        },
     },
     beforeDestroy() {
         this.$store.commit('updateQueryOptions', {});
     }
 }
 </script>
-
-<style></style>

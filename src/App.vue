@@ -1,19 +1,22 @@
 <template>
   <v-app>
-    <v-main>
+    <v-content>
       <Header />
       <router-view :isMobile="isMobile"></router-view>
-    </v-main>
+    </v-content>
+    <Footer />
   </v-app>
 </template>
 
 <script>
 import Header from './components/Header';
+import Footer from './components/Footer';
 
 export default {
   name: "App",
   components: {
     Header,
+    Footer
   },
   async mounted() {
     window.onresize = this.getDimensions;

@@ -3,18 +3,19 @@
         <v-container>
             <Sort @toggleShowFilter="toggleShowFilter" />
             <v-row>
-                <v-col v-show="!isMobile || showFilter" cols="12" sm="3" class="py-0 pr-2 mt-n3">
+                <v-col v-show="!isMobile || showFilter" cols="12" sm="3" class="py-0 pr-2 mt-n1 mb-6 mb-sm-0">
                     <FilterMenu @toggleShowFilter="toggleShowFilter" :items="givenItems || items" />
                 </v-col>
-                <v-col cols="12" sm="9" :class="isMobile ? 'mt-n6' : 'mt-n3'">
-                    <v-row :class="isMobile ? 'px-2' : ''" :style="!isMobile ? 'height: 1100px' : 'height: 785px'">
+                <v-col cols="12" sm="9" :style="!isMobile ? 'height: 1750px' : 'height: 1680px'"
+                    :class="isMobile ? 'mt-n6' : 'mt-n3'">
+                    <v-row :class="isMobile ? 'px-2' : ''">
                         <v-col cols="6" sm="4" class="py-0" :class="!isMobile ? i % 3 ?
                             'pl-2 pr-1 ml-n1' :
                             'pl-0 pr-1'/*first elements */
                             : 'px-1'" v-for="(item, i) in displayedItems" :key="item.id">
                             <Items shop :item="item" @toggleWishlist="item.inWishlist = !item.inWishlist" />
                         </v-col>
-                        <v-pagination v-model="currentPage" :total-visible="5" :items-per-page="itemsPerPage"
+                        <v-pagination class="mt-4" v-model="currentPage" :total-visible="5" :items-per-page="itemsPerPage"
                             @input="updateDisplayedItems" :length="totalPages" />
                     </v-row>
                 </v-col>

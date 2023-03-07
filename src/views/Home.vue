@@ -6,8 +6,8 @@
                     <v-col cols="3">
                         <div>
                             <h2 class="mb-8">Work, play and create!</h2>
-                            <span class="my-8">Browse a huge selection of TVs, laptops, cameras and more.</span>
-                            <v-btn @click="$router.push('/catalog/electronics')" class="custom-btn mt-8">Shop electronics
+                            <p class="my-8">Browse a huge selection of TVs, laptops, cameras and more.</p>
+                            <v-btn @click="$router.push('/catalog/electronics')" class="custom-btn mt-6">Shop electronics
                                 →</v-btn>
                         </div>
                     </v-col>

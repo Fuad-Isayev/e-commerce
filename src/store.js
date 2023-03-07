@@ -20,10 +20,12 @@ const options = {
         selectedSubcategory: null,
         filterOptions: {},
         queryOptions: {},
+        lowestItemPrice: 0,
+        highestItemPrice: 0,
     },
     getters: {
         isMobile(state) {
-             return state.screenWidth < 1264;
+             return state.screenWidth < 600;
         },
         wishlistItemsCount(state) {
             return Object.keys(state.wishlistItems).length;
@@ -33,11 +35,11 @@ const options = {
             let query = state.queryOptions;
             query = {...query,...query1};
             const options = Object.keys(state.filterOptions);
-            const selectedOptions = Object.keys(query).filter(q => options.some(o => o === q));
+            const selectedOptions = Object.keys(query).filter(q => options.some(o => o === q) || q === 'minPrice' || q === 'maxPrice');
             return selectedOptions.reduce((acc, current) => {
                     return {...acc, [current]: query[current] ? query[current].split(',') : []}
             }, {});
-        }
+        },
     },
     mutations: {
         selectItem(state, payload) {
@@ -61,7 +63,6 @@ const options = {
                     return Object.keys(payload.filter).every((key) => {
                         const filterValue = payload.filter[key];
                         const itemValue = item.specifications[key];
-                        console.log('filterValue, itemValue ', filterValue, itemValue)
                         if (filterValue.length > 0) {
                             if (Array.isArray(filterValue)) {
                                 if(key === "color"){
@@ -77,6 +78,13 @@ const options = {
                         }
                     });
                 });
+            }
+            if(payload.price) {
+                console.log('Filter by Price ', payload);
+                state.filteredItems = state.filteredItems.filter((item) => {
+                    const itemPrice = parseInt(item.price);
+                    return itemPrice >= parseInt(payload.price.min) && itemPrice <= parseInt(payload.price.max)
+                })
             }
         },
         getFilterOptions(state){
@@ -108,6 +116,17 @@ const options = {
         },
         updateQueryOptions(state,payload) {
             state.queryOptions = payload
+        },
+        getPriceLimits(state) {
+            console.log('items ', state.filteredItems);
+            if(state.filteredItems.length > 0){
+                state.lowestItemPrice = state.filteredItems.reduce((acc, curr) => {
+                    return parseInt(curr.price) < parseInt(acc.price) ? curr : acc;
+                }).price;
+                state.highestItemPrice = state.filteredItems.reduce((acc, curr) => {
+                    return parseInt(curr.price) > parseInt(acc.price) ? curr : acc;
+                }).price;
+            }
         }
     },
     actions: {
@@ -128,6 +147,7 @@ const options = {
             if(router.history.current.params.subcategory) {
                 commit('filterItems', { subcategory: router.history.current.params.subcategory})
                 commit('getFilterOptions');
+                commit('getPriceLimits');
             }
 
             const filter = getters.selectedFilterOptions;

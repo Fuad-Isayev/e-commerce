@@ -39,7 +39,7 @@
             <v-col class="cart-total" cols="12" sm="2">
                 <h4>Cart Total:</h4>
                 <h3 class="my-4"> $ {{ totalPrice }}</h3>
-                <v-btn color="#a5042f" class="white--text">
+                <v-btn color="blue" class="white--text">
                     Proceed
                 </v-btn>
             </v-col>
@@ -145,7 +145,7 @@ export default {
 }
 
 .cart-total {
-    border: 2px solid #d5042f;
-    background-color: lighten(#160005, 90%);
+    border: 2px solid rgb(66, 152, 232);
+    background-color: lighten(#133963, 70%);
 }
 </style>

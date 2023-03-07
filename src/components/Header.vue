@@ -1,17 +1,17 @@
 <template>
     <div>
         <v-container>
-            <v-row>
+            <v-row class="align-center mt-sm-n8">
                 <v-col cols="2" md="3">
-                    <v-avatar v-show="!isMobile" rounded width='150px'>
+                    <v-avatar v-show="!isMobile" rounded width="150">
                         <v-img class="logo" @click="goHome()" src="../assets/logo.png">
                         </v-img>
                     </v-avatar>
-                    <NavigationDrawer class="d-inline" />
+                    <NavigationDrawer class="d-inline ml-1" />
                 </v-col>
                 <v-col cols="4" md="6">
-                    <v-autocomplete ref="autocomplete" v-if="!isMobile" v-model="model" :items="items" :menu-props="menu"
-                        :search-input.sync="search" :loading="isLoading" item-text="name" item-value="id"
+                    <v-autocomplete ref="autocomplete" class="pt-7" v-if="!isMobile" v-model="model" :items="items"
+                        :menu-props="menu" :search-input.sync="search" :loading="isLoading" item-text="name" item-value="id"
                         label="Search for a product..." solo>
                         <template v-slot:no-data>
                             <v-list-item>
@@ -35,22 +35,22 @@
                             </v-list-item>
                         </template>
                     </v-autocomplete>
-                    <v-avatar v-if="isMobile" rounded class="ml-n2" width='130px'>
+                    <v-avatar v-if="isMobile" rounded width='130px'>
                         <v-img class="logo" @click="goHome()" src="../assets/logo.png">
                         </v-img>
                     </v-avatar>
                 </v-col>
-                <v-col cols="6" md="3" class="d-flex align-items-center justify-end">
+                <v-col cols="6" md="3" class="d-flex justify-end">
                     <v-btn v-if="!isMobile" class="mr-1 ml-2">
                         <v-icon>mdi-account-outline</v-icon>
                     </v-btn>
                     <v-btn @click="$router.push('/wishlist')" class="mr-2 ml-1">
-                        <v-badge color="#710219" :content="wishlistItemsCount || '0'">
+                        <v-badge color="blue" :content="wishlistItemsCount || '0'">
                             <v-icon>mdi-heart-outline</v-icon>
                         </v-badge>
                     </v-btn>
                     <v-btn @click="$router.push('/cart')">
-                        <v-badge color="#710219" :content="cartItemsCount">
+                        <v-badge color="blue" :content="cartItemsCount">
                             <v-icon>mdi-cart-outline</v-icon>
                         </v-badge>
                     </v-btn>
@@ -131,7 +131,7 @@ export default {
             return this.$store.getters.isMobile;
         },
         cartItemsCount() {
-            return this.$store.state.cartItemsCount;
+            return this.$store.state.cartItemsCount || '0';
         },
         wishlistItemsCount() {
             return this.$store.getters.wishlistItemsCount;
@@ -143,7 +143,7 @@ export default {
                 const resp = await firebase.get(`/items.json?orderBy="name"&startAt="${val.charAt(0).toUpperCase() + val.slice(1)}"`)
                 this.items = Object.values(resp.data);
             }
-        }
+        },
     }
 }
 </script>

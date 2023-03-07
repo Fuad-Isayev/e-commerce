@@ -6,7 +6,8 @@
             <v-col cols="10">
                 <v-row v-for="cat, i in     filteredCategories[0] ? filteredCategories : categories" :key="i"
                     class="align-center justify-center text-center mb-4">
-                    <span @click="$router.push(`/catalog/${cat.query}`)" class="text-h6 mb-8 clickable">{{ cat.name
+                    <span @click="$router.push(`/catalog/${cat.query}?sub=${cat.query}`)" class="text-h6 mb-8 clickable">{{
+                        cat.name
                     }}</span>
                     <v-col @click="$router.push(`/catalog/${cat.query}/${subcat.query}`)" class="subcategory" cols="4"
                         sm="2" v-for="subcat, i in     filterSubcategories(cat)" :key="i">

@@ -135,14 +135,14 @@ export default {
     methods: {
         addToCart() {
             let item = { ...this.item };
-            item.id = item.id.slice(0, -4),
-                Object.keys(this.selectedValues).forEach((key) => {
-                    let valueName = this.selectedValues[key].name || this.selectedValues[key];
-                    item[key] = this.selectedValues[key];
-                    item.id += valueName.slice(0, 2);
-                    item.name += ' ' + valueName.charAt(0).toUpperCase() + valueName.slice(1);
-                });
-            console.log(item);
+            Object.keys(this.selectedValues).forEach((key) => {
+                let valueName = this.selectedValues[key].name || this.selectedValues[key];
+                console.log('Value name ', valueName);
+                item[key] = this.selectedValues[key];
+                item.id = item.id.slice(0, -2);
+                item.id += valueName.slice(0, 2);
+                item.name += ' ' + valueName.charAt(0).toUpperCase() + valueName.slice(1);
+            });
             this.$store.dispatch('addToCart', item);
         }
     }
