@@ -32,7 +32,7 @@
             </v-toolbar>
         </v-col>
     </v-row>
-    <v-row v-else class="align-center my-0 text-center ">
+    <v-row v-else class="align-center mb-4 text-center ">
         <v-col class="ms-0 pe-2">
             <v-btn class="text-caption font-weight-bold" block @click="$emit('toggleShowFilter')">
                 FILTER
