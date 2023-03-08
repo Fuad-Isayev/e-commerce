@@ -1,9 +1,9 @@
 <template>
   <v-app>
-    <v-content>
+    <v-main>
       <Header />
       <router-view :isMobile="isMobile"></router-view>
-    </v-content>
+    </v-main>
     <Footer />
   </v-app>
 </template>

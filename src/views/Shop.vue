@@ -4,7 +4,7 @@
             <Sort @toggleShowFilter="toggleShowFilter" />
             <v-row>
                 <v-col v-show="!isMobile || showFilter" cols="12" sm="3" class="py-0 pr-2 mt-n1 mb-6 mb-sm-0">
-                    <FilterMenu @toggleShowFilter="toggleShowFilter" :items="givenItems || items" />
+                    <FilterItems ref="filter" @toggleShowFilter="toggleShowFilter" :items="givenItems || items" />
                 </v-col>
                 <v-col cols="12" sm="9" :style="!isMobile ? 'height: 1650px' : 'height: 1590px'"
                     :class="isMobile ? 'mt-n6' : 'mt-n3'">
@@ -29,14 +29,14 @@
 <script>
 import Items from '../components/Items';
 import Sort from '../components/Sort';
-import FilterMenu from '../components/Filter';
+import FilterItems from '../components/Filter';
 
 export default {
     name: "Shop",
     components: {
         Items,
         Sort,
-        FilterMenu,
+        FilterItems,
     },
     props: {
         givenItems: {

@@ -80,7 +80,7 @@ const options = {
                 });
             }
             if(payload.price) {
-                console.log('Filter by Price ', payload);
+                // console.log('Filter by Price ', payload);
                 state.filteredItems = state.filteredItems.filter((item) => {
                     const itemPrice = parseInt(item.price);
                     return itemPrice >= parseInt(payload.price.min) && itemPrice <= parseInt(payload.price.max)

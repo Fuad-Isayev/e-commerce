@@ -5,8 +5,8 @@
                 <strong>Filter</strong>
                 <v-spacer></v-spacer>
                 <v-divider vertical></v-divider>
-                <v-btn icon class="ml-1">
-                    <v-icon color="#710219">mdi-sync</v-icon>
+                <v-btn @click="resetFilter()" icon class="ml-1">
+                    <v-icon color="#077c8c">mdi-sync</v-icon>
                 </v-btn>
             </v-toolbar>
         </v-col>
@@ -23,7 +23,7 @@
         </v-col>
         <v-col cols="12" sm="3" class="mt-n6 pl-0 pr-3 ml-0">
             <v-toolbar flat outlined>
-                <strong>SHOW: 12 of ({{ this.$store.state.filteredItems.length }})</strong>
+                <strong>SHOW: 12 of ({{ filteredItems.length }})</strong>
                 <v-spacer></v-spacer>
                 <v-divider vertical></v-divider>
                 <v-btn icon class="ml-1">
@@ -51,6 +51,10 @@
                 </div>
             </transition>
         </v-col>
+        <v-col v-if="$parent.showFilter" class="text-start pt-0" cols="12">
+            <v-chip @click="resetFilter()" color="#07acac" text-color="white" class="pill">Reset filters
+            </v-chip>
+        </v-col>
     </v-row>
 </template>
 
@@ -77,11 +81,13 @@ export default {
         },
         route() {
             return this.$route.query.sbp;
+        },
+        filteredItems() {
+            return this.$store.state.filteredItems;
         }
     },
     methods: {
         changeRoute(opt) {
-            console.log(opt);
             switch (this.isMobile ? opt.value : opt) {
                 case 0:
                     this.$router.push("?sbp=PRICE_ASCEND")
@@ -91,6 +97,9 @@ export default {
             }
             this.showSortOptions = false;
             this.sortText = opt.text
+        },
+        resetFilter() {
+            this.$parent.$refs.filter.resetFilter();
         }
     },
     watch: {

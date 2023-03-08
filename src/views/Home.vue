@@ -27,10 +27,8 @@
             </v-carousel-item>
         </v-carousel>
         <v-row>
-            <v-col class="text-h5 font-weight-medium">
-                <span class="pe-2">
-                    Explore Popular Categories
-                </span>
+            <v-col class="text-sm-h5 custom-title font-weight-medium">
+                <span class="pe-2"> Explore Popular Categories </span>
                 <span @click="$router.push('/catalog/all-categories')" class="border-start clickable ps-2">
                     See all →
                 </span>
@@ -96,5 +94,9 @@ export default {
 
 .clickable {
     cursor: pointer;
+}
+
+.custom-title {
+    font-size: 19px !important;
 }
 </style>

@@ -110,24 +110,28 @@ export default {
         },
         selectedValues: {
             handler: function (val) {
-                console.log('selected values ', JSON.stringify(val));
+                // console.log('selected values ', JSON.stringify(val));
                 let obj = { ...this.$route.query }
                 Object.keys(val).forEach((key) => {
                     if (val[key] && val[key].length > 0) {
-                        console.log('add prop');
-                        console.log('val key ', val[key]);
+                        // console.log('add prop');
+                        // console.log('val key ', val[key]);
                         obj = { ...this.$route.query, [key]: val[key].join(',') }
                     } else if (obj[key]) {
-                        console.log('delete prop');
+                        // console.log('delete prop');
                         delete obj[key]
                     } else {
-                        console.log('empty the object');
+                        // console.log('empty the object');
                         obj = {}
                     }
                 })
-                console.log('obj ', obj);
+                if (JSON.stringify(val) === "{}") {
+                    // console.log('empty obj');
+                    obj = { minPrice: this.lowestItemPrice, maxPrice: this.highestItemPrice }
+                }
+                // console.log('obj ', obj);
                 if (JSON.stringify(this.$route.query) !== JSON.stringify(obj)) {
-                    console.log('query pushed');
+                    // console.log('query pushed');
                     this.$router.push({ query: obj });
                 }
                 this.$store.commit('updateQueryOptions', obj);
@@ -157,11 +161,11 @@ export default {
     methods: {
         filterByPrice(val) {
             let obj = { ...this.$route.query };
-            console.log('val', val);
+            // console.log('val', val);
             obj.minPrice = val[0].toString();
             obj.maxPrice = val[1].toString();
             if (JSON.stringify(this.$route.query) !== JSON.stringify(obj)) {
-                console.log('query pushed ', JSON.stringify(obj), JSON.stringify(this.$route.query));
+                // console.log('query pushed ', JSON.stringify(obj), JSON.stringify(this.$route.query));
                 this.$router.push({ query: obj });
             }
             this.$store.commit('updateQueryOptions', obj);
@@ -176,6 +180,11 @@ export default {
                 this.$set(this.range, Number(index), value)
             }
         },
+        resetFilter() {
+            this.selectedValues = {}
+            this.$set(this.range, 0, this.lowestItemPrice);
+            this.$set(this.range, 1, this.highestItemPrice);
+        }
     },
     beforeDestroy() {
         this.$store.commit('updateQueryOptions', {});
