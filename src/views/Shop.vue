@@ -63,7 +63,6 @@ export default {
             const start = (this.currentPage - 1) * this.itemsPerPage;
             const end = start + this.itemsPerPage;
             this.displayedItems = this.givenItems.slice(start, end);
-            window.scrollTo(0, 0);
         }
     },
     computed: {
@@ -83,6 +82,9 @@ export default {
             handler() {
                 this.updateDisplayedItems();
             }
+        },
+        currentPage() {
+            window.scrollTo(0, 0);
         }
     }
 }
