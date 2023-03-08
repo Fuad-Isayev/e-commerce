@@ -23,7 +23,7 @@
         </v-col>
         <v-col cols="12" sm="3" class="mt-n6 pl-0 pr-3 ml-0">
             <v-toolbar flat outlined>
-                <strong>SHOW: 12 of ({{ filteredItems.length }})</strong>
+                <strong>SHOW: {{ $parent.displayedItems.length }} of ({{ filteredItems.length }})</strong>
                 <v-spacer></v-spacer>
                 <v-divider vertical></v-divider>
                 <v-btn icon class="ml-1">
